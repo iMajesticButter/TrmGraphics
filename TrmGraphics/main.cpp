@@ -10,7 +10,6 @@ int main() {
 
     TrmGraphics::ConsoleGraphics console(width, height);
 
-
     int i = 0;
     while(true) {
         double sn = sin((double)i/1000)/2;
@@ -26,7 +25,7 @@ int main() {
         }
 
         console.printAt("test", x, y, 255-(int)(((float)x/(float)width)*255), (int)(((float)y/(float)height)*255), 0);
-
+        
         console.draw();
         ++i;
     }

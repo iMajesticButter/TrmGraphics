@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 
 //windows stuff
 #if defined(PLATFORM_WINDOWS)
@@ -12,6 +13,8 @@
         #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
     #endif
 #endif
+
+#define WHITE_THRESHHOLD 35
 
 namespace TrmGraphics {
 
@@ -42,7 +45,7 @@ namespace TrmGraphics {
         m_cursor_index = 0;
 
 //enable ansi escape codes on windows
-#if defined(PLATFORM_WINDOWS)
+    #if defined(PLATFORM_WINDOWS)
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         DWORD consoleMode;
         GetConsoleMode(hConsole, &consoleMode);
@@ -77,10 +80,10 @@ namespace TrmGraphics {
         MoveWindow(consoleHWND, r.left, r.top, m_columns*(int)((float)fontSize/2.0f), (2+m_rows)*fontSize, TRUE);
 
 
-#else
+    #else
         UNREF_PARAM(askForFontSize);
         UNREF_PARAM(fontSize);
-#endif
+    #endif
 
         if(m_ansiSupported) {
             //attempt to resize the console using ansi escape codes
@@ -187,17 +190,21 @@ namespace TrmGraphics {
 
     //--------PRIVATE FUNCTIONS -----------
 
+    int dist(int a, int b) {
+        return std::abs(a-b);
+    }
+
     void ConsoleGraphics::clearConsole() {
         if(m_ansiSupported) {
             printf("\033[2J");
             return;
         }
 
-        #if defined(PLATFORM_WINDOWS)
-            std::system("cls");
-        #elif defined(PLATFORM_LINUX)
-            std::system("clear");
-        #endif
+    #if defined(PLATFORM_WINDOWS)
+        std::system("cls");
+    #elif defined(PLATFORM_LINUX)
+        std::system("clear");
+    #endif
 
     }
 
@@ -214,9 +221,80 @@ namespace TrmGraphics {
             printf("\033[38;2;%d;%d;%dm", r, g, b);
             return;
         }
+
+    #if defined(PLATFORM_WINDOWS)
+
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        bool brt = false;
+        if(r > 127 || g > 127 || b > 127) {
+            brt = true;
+        }
+
+        //check if black or white (or close to them)
+        if(dist(r, g) <= WHITE_THRESHHOLD && dist(g, b) <= WHITE_THRESHHOLD) {
+            if(r < WHITE_THRESHHOLD)
+                SetConsoleTextAttribute(hConsole, 0);
+            else if(brt)
+                SetConsoleTextAttribute(hConsole, 15);
+            else if(r >= 100)
+                SetConsoleTextAttribute(hConsole, 7);
+            else
+                SetConsoleTextAttribute(hConsole, 8);
+            return;
+        }
+
+        float nr = (float)r / 255;
+        float ng = (float)g / 255;
+        float nb = (float)b / 255;
+
+        float hue = 0;
+
+        //get the maximum of the 3 rgb values
+        float max = (std::max(nr, ng) > std::max(ng, nb)) ? std::max(nr, ng) : std::max(ng, nb);
+        //get the minimum of the 3 rgb values
+        float min = (std::min(nr, ng) < std::min(ng, nb)) ? std::min(nr, ng) : std::min(ng, nb);
+
+        //do the rgb to hue conversion algorithm
+        if(max == nr) {
+            hue = (ng-nb)/(max-min);
+        } else if(max == ng) {
+            hue = 2.0f + (nb-nr)/(max-min);
+        } else {
+            hue = 4.0f + (nr-ng)/(max-min);
+        }
+        hue *= 60;
+        if(hue < 0)
+            hue += 360;
+
+        //an array of the approxamate hue values of the windows color set in order
+        //              blu  grn  cyn red mgt ylw  red(again)
+        int colors[7] = {240, 130, 180, 0, 300, 60, 360};
+
+        //get closest color on the default windows colsole color set
+        int closest = 0;
+        int minDist = 360;
+        for(int i = 0; i < 7; ++i) {
+            if(dist(colors[i], hue) < minDist) {
+                minDist = dist(colors[i], hue);
+                closest = i;
+            }
+        }
+
+        //combine reds
+        if(closest == 6)
+            closest = 3;
+
+        //set bright color values
+        if(brt)
+            closest += 8;
+
+        SetConsoleTextAttribute(hConsole, closest+1);
+
+    #else
         std::cerr << "ERROR: ANSI ESCAPE CODES NOT SUPPORTED ON THIS CONSOLE" << std::endl;
-        std::cerr << "TODO: NEED TO IMPLIMENT NON ANSI AND 8 BIT COLOR CONVERSION" << std::endl;
         return;
+    #endif
     }
 
 }
