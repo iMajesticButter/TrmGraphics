@@ -32,7 +32,7 @@ namespace TrmGraphics {
 
     //----------PUBLIC FUNCTIONS----------
     //constructor
-    ConsoleGraphics::ConsoleGraphics(int columns, int rows) {
+    ConsoleGraphics::ConsoleGraphics(int columns, int rows, bool askForFontSize, int fontSize) {
 
         m_ansiSupported = true;
 
@@ -55,12 +55,35 @@ namespace TrmGraphics {
         } else {
             m_ansiSupported = true;
         }
+
+        //attempt to resize the console the windows way
+        if(askForFontSize) {
+            std::cout << "To determine the correct window scale, this program may need your terminal font size" << std::endl;
+            std::cout << "you can find this by right clicking on the top of this window, " << std::endl;
+            std::cout << "clicking 'Properties', and clicking on the 'Font' tab" << std::endl;
+            std::cout << "Please Input Your Console Font Size: ";
+            std::cin >> fontSize;
+
+            if(fontSize < 5) {
+                std::cerr << "INVALID FONT SIZE, SETTING TO DEFAULT: " << DEFAULT_FONT_SIZE << std:: endl;
+                fontSize = DEFAULT_FONT_SIZE;
+            }
+
+        }
+
+        HWND consoleHWND = GetConsoleWindow();
+        RECT r;
+        GetWindowRect(consoleHWND, &r);
+        MoveWindow(consoleHWND, r.left, r.top, m_columns*(int)((float)fontSize/2.0f), (2+m_rows)*fontSize, TRUE);
+
+
+#else
+        UNREF_PARAM(askForFontSize);
+        UNREF_PARAM(fontSize);
 #endif
 
         if(m_ansiSupported) {
             //attempt to resize the console using ansi escape codes
-            //as this is not that important (user can resize the window themselves) it will only attempt to use ansi escape codes
-            //and will not attempt to resize using windows functions (mostly because the windows functions work in pixels not charaters)
             printf("\033[%d;%df", m_rows, m_columns);
             printf("\033[=7h");
             printf("\033[%d;%df", m_rows, m_columns);

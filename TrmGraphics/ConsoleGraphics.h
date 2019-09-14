@@ -6,13 +6,15 @@
 
 namespace TrmGraphics {
 
+    #define DEFAULT_FONT_SIZE 16
+
     //typedef class string string;
 
     typedef struct cPixel cPixel;
 
     class ConsoleGraphics {
     public:
-        ConsoleGraphics(int columns, int rows);
+        ConsoleGraphics(int columns, int rows, bool askForFontSize = false, int fontSize = DEFAULT_FONT_SIZE);
         ~ConsoleGraphics();
 
         //print somthing to the console starting at cursor position (x, y) with color (r, g, b)
