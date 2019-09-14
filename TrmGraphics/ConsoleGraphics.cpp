@@ -34,8 +34,8 @@ namespace TrmGraphics {
     };
 
     //----------PUBLIC FUNCTIONS----------
-    //! ConsoleGraphics constructor
-    /*!
+    // ConsoleGraphics constructor
+    /*
       \param columns The desired width of the terminal.
       \param rows The desired height of the terminal.
       \param askForFontSize Sould the Console Manager automatically ask the user for the terminals font size. **Only required on windows**. defaults to *false*
@@ -115,7 +115,7 @@ namespace TrmGraphics {
 
     }
 
-    //! ConsoleGraphics destructor
+    // ConsoleGraphics destructor
     ConsoleGraphics::~ConsoleGraphics() {
 
         //free front and back buffers
@@ -128,8 +128,8 @@ namespace TrmGraphics {
         clearConsole();
     }
 
-    //! print at cursor position
-    /*!
+    // print at cursor position
+    /*
       print somthing to the terminal starting at current cursor position, with color (r, g, b).\n
       note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
       \param str the string to be printed
@@ -143,8 +143,8 @@ namespace TrmGraphics {
         printAt(str, m_cursor_index + 1, 0, r, g, b);
     }
 
-    //! move cursor, then print at new cursor position
-    /*!
+    // move cursor, then print at new cursor position
+    /*
       print somthing to the terminal starting at cursor position (x, y), with color (r, g, b).\n
       note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
       \param str the string to be printed
@@ -179,8 +179,8 @@ namespace TrmGraphics {
 
     }
 
-    //! print a rectangle to the back buffers
-    /*!
+    // print a rectangle to the back buffers
+    /*
       print a fill-able rectangle to the back buffer to be drawn.\n
       note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
       \param c The character to print the rectangle out of
@@ -242,8 +242,8 @@ namespace TrmGraphics {
         }
 
     }
-    //! print a rectangle to the back buffers
-    /*!
+    // print a rectangle to the back buffers
+    /*
       print a fill-able rectangle to the back buffer to be drawn, this overload is more suitable for non-filled rectangles.\n
       note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
       \param c The character to print the rectangle out of
@@ -263,8 +263,8 @@ namespace TrmGraphics {
         addRect(c, x1, y1, x2, y2, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
-    //! draw everything to the terminal
-    /*!
+    // draw everything to the terminal
+    /*
       this is the function that actually prints to the terminal.\n
       draw everything that has been written to the back buffer.
       this is **required** if you want anything that you printed to actually show up on screen.
