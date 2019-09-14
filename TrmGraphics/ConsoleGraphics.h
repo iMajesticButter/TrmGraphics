@@ -59,7 +59,7 @@ namespace TrmGraphics {
           \param r the red color value between 0 and 255. deafults to *255*
           \param g the green color value between 0 and 255. deafults to *255*
           \param b the blue color value between 0 and 255. deafults to *255*
-          \sa printAt() and draw()
+          \sa printAt(), draw(), addRect()
         */
         void printAt(std::string str, unsigned int x, unsigned int y, int r = 255, int g = 255, int b = 255);
 
@@ -79,6 +79,7 @@ namespace TrmGraphics {
           \param gBorder the green *border* color value between 0 and 255. deafults to *gFill*
           \param bBorder the blue *border* color value between 0 and 255. deafults to *bFill*
           \param fill Should the rectangle be filled
+          \sa printAt(), print(), draw()
         */
         void addRect(char c, int x1, int y1, int x2, int y2, int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
         //! print a rectangle to the back buffers
@@ -97,6 +98,7 @@ namespace TrmGraphics {
           \param rFill the red *fill* color value between 0 and 255. deafults to *255*
           \param gFill the green *fill* color value between 0 and 255. deafults to *255*
           \param bFill the blue *fill* color value between 0 and 255. deafults to *255*
+          \sa printAt(), print(), draw()
         */
         void addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
 
@@ -108,7 +110,7 @@ namespace TrmGraphics {
           it is recommended that you only call this **once per program loop** as it is more efficient.\n
           note: will not display anything if nothing has been printed.
           \param override clear the backbuffer erasing everything on next draw. deafults to *true*
-          \sa print() and printAt()
+          \sa print(), printAt(), addRect()
         */
         void draw(bool override = true);
 
