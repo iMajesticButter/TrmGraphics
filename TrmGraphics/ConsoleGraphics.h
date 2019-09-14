@@ -39,20 +39,20 @@ namespace TrmGraphics {
 
         //! print at cursor position
         /*!
-          print somthing to the terminal starting at current cursor position, with color (r, g, b)\n
-          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called
+          print somthing to the terminal starting at current cursor position, with color (r, g, b).\n
+          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
           \param str the string to be printed
           \param r the red color value between 0 and 255. deafults to *255*
           \param g the green color value between 0 and 255. deafults to *255*
           \param b the blue color value between 0 and 255. deafults to *255*
           \sa printAt() and draw()
-          */
+        */
         void print(std::string str, int r = 255, int g = 255, int b = 255);
 
         //! move cursor, then print at new cursor position
         /*!
-          print somthing to the terminal starting at cursor position (x, y), with color (r, g, b)\n
-          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called
+          print somthing to the terminal starting at cursor position (x, y), with color (r, g, b).\n
+          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
           \param str the string to be printed
           \param x the x position to print at (row)
           \param y the y position to print at (column)
@@ -62,6 +62,43 @@ namespace TrmGraphics {
           \sa printAt() and draw()
         */
         void printAt(std::string str, unsigned int x, unsigned int y, int r = 255, int g = 255, int b = 255);
+
+        //! print a rectangle to the back buffers
+        /*!
+          print a fill-able rectangle to the back buffer to be drawn.\n
+          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
+          \param c The character to print the rectangle out of
+          \param x1 The x position of the *first* corner
+          \param y1 The y position of the *first* corner
+          \param x2 The x position of the *opposite* corner
+          \param y2 The y position of the *opposite* corner
+          \param rFill the red *fill* color value between 0 and 255. deafults to *255*
+          \param gFill the green *fill* color value between 0 and 255. deafults to *255*
+          \param bFill the blue *fill* color value between 0 and 255. deafults to *255*
+          \param rBorder the red *border* color value between 0 and 255. deafults to *rFill*
+          \param gBorder the green *border* color value between 0 and 255. deafults to *gFill*
+          \param bBorder the blue *border* color value between 0 and 255. deafults to *bFill*
+          \param fill Should the rectangle be filled
+        */
+        void addRect(char c, int x1, int y1, int x2, int y2, int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
+        //! print a rectangle to the back buffers
+        /*!
+          print a fill-able rectangle to the back buffer to be drawn, this overload is more suitable for non-filled rectangles.\n
+          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
+          \param c The character to print the rectangle out of
+          \param x1 The x position of the *first* corner
+          \param y1 The y position of the *first* corner
+          \param x2 The x position of the *opposite* corner
+          \param y2 The y position of the *opposite* corner
+          \param fill Should the rectangle be filled
+          \param rBorder the red *border* color value between 0 and 255. deafults to *255*
+          \param gBorder the green *border* color value between 0 and 255. deafults to *255*
+          \param bBorder the blue *border* color value between 0 and 255. deafults to *255*
+          \param rFill the red *fill* color value between 0 and 255. deafults to *255*
+          \param gFill the green *fill* color value between 0 and 255. deafults to *255*
+          \param bFill the blue *fill* color value between 0 and 255. deafults to *255*
+        */
+        void addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
 
         //! draw everything to the terminal
         /*!
@@ -80,7 +117,7 @@ namespace TrmGraphics {
         //functions
         void clearConsole();
         int getIndex(int x, int y);
-        void setConsoleColor(int r, int g, int b);
+        void setConsoleColor(unsigned int r, unsigned int g, unsigned int b);
 
         //variables
         bool m_ansiSupported = true;

@@ -18,14 +18,17 @@ int main() {
         int y = (int)(((double)height/2)+(sn * height));
 
         //print lots of #'s
-        for(int i = 0; i < width; ++i) {
+        /*for(int i = 0; i < width; ++i) {
             for(int j = 0; j < height; ++j) {
                 console.printAt("#", i, (height-1)-j, i*(255/width), j*(255/height), 0);
             }
         }
 
-        console.printAt("test", x, y, 255-(int)(((float)x/(float)width)*255), (int)(((float)y/(float)height)*255), 0);
-        
+        console.printAt("test", x, y, 255-(int)(((float)x/(float)width)*255), (int)(((float)y/(float)height)*255), 0);*/
+
+        console.addRect('#', x-10, y-5, x+10, y+5, 0, 255, 0, 255, 0, 0);
+        console.addRect('#', y-10, x-5, y+10, x+5, 0, 255, 0, 255, 0, 0);
+
         console.draw();
         ++i;
     }
