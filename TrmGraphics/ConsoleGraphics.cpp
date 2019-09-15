@@ -283,13 +283,18 @@ namespace TrmGraphics {
 
         //check for differences between the front and back buffers
         //when one is found, set the color to its color, then set the cursor to its position and print it!
+        unsigned int lastR = 0, lastG = 0, lastB=0;
         for(int r = 0; r < m_rows; ++r) {
             for(int c = 0; c < m_columns; ++c) {
                 cPixel &backPix = m_backBuffer[getIndex(r, c)];
                 if(backPix != m_frontBuffer[getIndex(r, c)]) {
-                    printf("\033[%d;%df", r, c);
-                    setConsoleColor(backPix.r,backPix.g,backPix.b);
-                    printf("%c", backPix.c);
+                    if(backPix.r != lastR || backPix.g != lastG || backPix.b != lastB) {
+                        lastR = backPix.r;
+                        lastG = backPix.g;
+                        lastB = backPix.b;
+                        setConsoleColor(backPix.r,backPix.g,backPix.b);
+                    }
+                    printf("\033[%d;%df%c", r, c, backPix.c);
                     m_frontBuffer[getIndex(r, c)] = backPix;
                 }
             }

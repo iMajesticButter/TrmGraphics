@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+#include <ctime>
+#include <time.h>
 
 #define UNUSED(x) (void)(x)
 
@@ -15,8 +17,8 @@ DWORD CALLBACK Process(void* buffer, DWORD length, void* user) {
 
 int main() {
 
-    const int width = 200;
-    const int height = 31;
+    const int width = 100;
+    const int height = 41;
     const int margin = 6;
 
     TrmGraphics::ConsoleGraphics console(width, height);
@@ -59,9 +61,21 @@ int main() {
 
     float fft[2048];
 
+    clock_t lastTime = clock();
     //update loop
     while(true) {
-        int ret = BASS_WASAPI_GetData(fft, (int)BASS_DATA_FFT2048);
+        //ups couter
+        double deltaTime = (double)(clock() - lastTime) / 1000;
+        lastTime = clock();
+
+        float ups = 1/deltaTime;
+        char buf[32];
+        sprintf(buf, "Updates Per Second: %f", ups);
+
+        console.printAt(buf, 1, 1);
+
+        //get fft data
+        int ret = BASS_WASAPI_GetData(fft, (int)BASS_DATA_FFT4096);
         if(ret < 0) {
             std::cout << "GET DATA ERROR: " << BASS_ErrorGetCode() << std::endl;
             Sleep(10000);
@@ -69,15 +83,16 @@ int main() {
             break;
         }
 
+        //display fft
         for(int x = 0; x < width; ++x) {
             if(x < margin || x >= width-margin-3) {
                 console.printAt("#", x, height/2, 0, 255, 255);
                 continue;
             }
-            float size = pow(fft[x], 0.9)*25;
+            float size = pow(fft[x], 0.9)*15;
             console.printAt("#", x, height/2, size*255, 0, 0);
             for(int y = 0; y < size*((height/2)-2)+1; ++y) {
-                if(y > height-1)
+                if(y > height-4)
                     continue;
                 float r = (float)y/(float)height;
                 r *= 255;
@@ -91,6 +106,11 @@ int main() {
         //console.addRect('#', fft[0] * 100, fft[0] * 100, 0, 0);
         //console.printAt("#", 0, -1);
         console.draw();
+
+        //limit updates per second to 100
+        while(1/((double)(clock() - lastTime)/1000) > 100) {
+            Sleep(10);
+        }
 
     }
 
