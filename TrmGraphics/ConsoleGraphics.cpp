@@ -110,6 +110,7 @@ namespace TrmGraphics {
         //initialize front and back buffers
         m_backBuffer = new cPixel[m_rows * m_columns]();
         m_frontBuffer = new cPixel[m_rows * m_columns]();
+        m_background = new cPixel[m_rows * m_columns]();
 
         clearConsole();
 
@@ -121,11 +122,11 @@ namespace TrmGraphics {
         //free front and back buffers
         delete[] m_backBuffer;
         delete[] m_frontBuffer;
+        delete[] m_background;
 
         m_backBuffer = nullptr;
         m_frontBuffer = nullptr;
-
-        clearConsole();
+        m_background = nullptr;
     }
 
     // print at cursor position
@@ -269,6 +270,26 @@ namespace TrmGraphics {
         addRect(c, x1, y1, x2, y2, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
+    //! saved the current back buffer as the background
+    /*!
+      When draw is called, the back_buffer will be set to the background instead of empty.
+    */
+    void ConsoleGraphics::saveBackground() {
+        memcpy(m_background, m_backBuffer, sizeof(cPixel) * (m_rows * m_columns));
+    }
+
+    //! will set the background to this char in the color r,g,b
+    /*!
+      \param c The character to set as the background.
+      \param r The red background color value between 0 and 255. defaults to *255*
+      \param g The green background color value between 0 and 255. defaults to *255*
+      \param b The blue background color value between 0 and 255. defaults to *255*
+    */
+    void ConsoleGraphics::setBackground(char c, int r, int g, int b) {
+        addRect(c, 0, 0, m_rows-1, m_columns-1, r,g,b,r,g,b);
+        saveBackground();
+    }
+
     // draw everything to the terminal
     /*
       this is the function that actually prints to the terminal.\n
@@ -302,7 +323,7 @@ namespace TrmGraphics {
 
         //clear backbuffer
         if(override) {
-            memset(m_backBuffer, 0, sizeof(cPixel) * (m_rows * m_columns));
+            memcpy(m_backBuffer, m_background, sizeof(cPixel) * (m_rows * m_columns));
         }
 
     }
