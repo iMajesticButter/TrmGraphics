@@ -155,7 +155,13 @@ namespace TrmGraphics {
       \param b the blue color value between 0 and 255. deafults to *255*
       \sa printAt() and draw()
     */
-    void ConsoleGraphics::printAt(std::string str, unsigned int x, unsigned int y, int r, int g, int b){
+    void ConsoleGraphics::printAt(std::string str, int x, int y, int r, int g, int b){
+        if(x < 0) {
+            x = 0;
+        }
+        if(y < 0) {
+            y = 0;
+        }
 
         //add str to backbuffer at position (x, y)
         for(unsigned int i = 0; i < str.length(); ++i) {
