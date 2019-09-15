@@ -102,6 +102,21 @@ namespace TrmGraphics {
         */
         void addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
 
+        //! saved the current back buffer as the background
+        /*!
+          When draw is called, the back_buffer will be set to the background instead of empty.
+        */
+        void saveBackground();
+
+        //! will set the background to this char in the color r,g,b
+        /*!
+          \param c The character to set as the background.
+          \param r The red background color value between 0 and 255. defaults to *255*
+          \param g The green background color value between 0 and 255. defaults to *255*
+          \param b The blue background color value between 0 and 255. defaults to *255*
+        */
+        void setBackground(char c, int r = 255, int g = 255, int b = 255);
+
         //! draw everything to the terminal
         /*!
           this is the function that actually prints to the terminal.\n
@@ -126,6 +141,7 @@ namespace TrmGraphics {
 
         cPixel* m_backBuffer;
         cPixel* m_frontBuffer;
+        cPixel* m_background;
 
         int m_rows;
         int m_columns;

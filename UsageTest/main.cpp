@@ -59,6 +59,9 @@ int main() {
     //clear the screen
     console.draw();
 
+    //set background
+    console.setBackground('#', 1, 0, 15);
+
     float fft[2048];
 
     clock_t lastTime = clock();
@@ -86,18 +89,17 @@ int main() {
         //display fft
         for(int x = 0; x < width; ++x) {
             if(x < margin || x >= width-margin-3) {
-                console.printAt("#", x, height/2, 0, 255, 255);
+                console.printAt("|", x, height/2, 0, 255, 255);
                 continue;
             }
             float size = pow(fft[x], 0.9)*15;
-            console.printAt("#", x, height/2, size*255, 0, 0);
+            console.printAt("|", x, height/2, size*255, 0, 0);
             for(int y = 0; y < size*((height/2)-2)+1; ++y) {
                 if(y > height-4)
                     continue;
                 float r = (float)y/(float)height;
-                r *= 255;
-                console.printAt("#", x, (height/2) + (y/2), r, 255-r, 255);
-                console.printAt("#", x, (height/2) - (y/2), r, 255-r, 255);
+                console.printAt("|", x, (height/2) + (y/2), r, 255-r, 255);
+                console.printAt("|", x, (height/2) - (y/2), r, 255-r, 255);
             }
         }
         //char buf[32];

@@ -128,7 +128,7 @@ namespace TrmGraphics {
           \param g The green background color value between 0 and 255. defaults to *255*
           \param b The blue background color value between 0 and 255. defaults to *255*
         */
-        void setBackground(char c, int r, int g, int b);
+        void setBackground(char c, int r = 255, int g = 255, int b = 255);
 
         //! draw everything to the terminal
         /*!

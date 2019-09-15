@@ -286,7 +286,7 @@ namespace TrmGraphics {
       \param b The blue background color value between 0 and 255. defaults to *255*
     */
     void ConsoleGraphics::setBackground(char c, int r, int g, int b) {
-        addRect(c, 0, 0, m_rows-1, m_columns-1, r,g,b,r,g,b);
+        addRect(c, 0, 0, m_columns-1, m_rows-1, r,g,b,r,g,b);
         saveBackground();
     }
 
