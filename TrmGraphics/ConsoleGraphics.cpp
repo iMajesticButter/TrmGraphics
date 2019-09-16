@@ -66,6 +66,8 @@ namespace TrmGraphics {
             m_ansiSupported = true;
         }
 
+        //m_ansiSupported = false;
+
         //attempt to resize the console the windows way
         if(askForFontSize) {
             std::cout << "To determine the correct window scale, this program may need your terminal font size" << std::endl;
@@ -86,6 +88,13 @@ namespace TrmGraphics {
         GetWindowRect(consoleHWND, &r);
         MoveWindow(consoleHWND, r.left, r.top, m_columns*(int)((float)fontSize/2.0f), (2+m_rows)*fontSize, TRUE);
 
+        if(!m_ansiSupported) {
+            //hide cursor
+            CONSOLE_CURSOR_INFO cursorInfo;
+            GetConsoleCursorInfo(hConsole, &cursorInfo);
+            cursorInfo.bVisible = false;
+            SetConsoleCursorInfo(hConsole, &cursorInfo);
+        }
 
     #else
         UNREF_PARAM(askForFontSize);
@@ -339,7 +348,24 @@ namespace TrmGraphics {
                         lastB = backPix.b;
                         setConsoleColor(backPix.r,backPix.g,backPix.b);
                     }
-                    printf("\033[%d;%df%c", r, c, backPix.c);
+                    if(m_ansiSupported) {
+                        printf("\033[%d;%df%c", r, c, backPix.c);
+                    } else {
+                    #if defined(PLATFORM_WINDOWS)
+                        int nC = c, nR = r;
+                        if(c > m_columns - 8)
+                            nC = m_columns - 8;
+                        if(r > m_rows - 3)
+                            nR = m_rows - 3;
+                        COORD p = {(short)nC, (short)nR};
+                        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+                        printf("%c", backPix.c);
+                    #elif defined(PLATFORM_LINUX)
+                        //-------------------------------------------------------------------------
+                        //TODO: add linux implementation of *non-ansi escape code* Cursor Movement!
+                        //-------------------------------------------------------------------------
+                    #endif
+                    }
                     m_frontBuffer[getIndex(r, c)] = backPix;
                 }
             }

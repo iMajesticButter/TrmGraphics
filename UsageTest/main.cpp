@@ -1,4 +1,4 @@
-#include <ConsoleGraphics.h>
+#include <TrmGraphics.h>
 #include <bass.h>
 #include <basswasapi.h>
 #include <string>
@@ -67,6 +67,8 @@ int main() {
     int mode = 0;
     bool pressed = false;
 
+    int brightness = 255;
+
     float fft[4096];
 
     clock_t lastTime = clock();
@@ -99,17 +101,17 @@ int main() {
         if(mode == 0) {
             for(int x = 0; x < width; ++x) {
                 if(x < margin || x >= width-margin-3) {
-                    console.printAt(buf, x, height/2, 0, 255, 255);
+                    console.printAt(buf, x, height/2, 0, brightness, brightness);
                     continue;
                 }
                 float size = pow(fft[x], 0.9)*15;
-                console.printAt(buf, x, height/2, size*255, 0, 0);
+                console.printAt(buf, x, height/2, size*brightness, 0, 0);
                 for(int y = 0; y < size*((height/2)-2)+1; ++y) {
                     if(y > height-4)
                         continue;
-                    float r = ((float)y/(float)height) * 255;
-                    console.printAt(buf, x, (height/2) + (y/2), r, 255-r, 255);
-                    console.printAt(buf, x, (height/2) - (y/2), r, 255-r, 255);
+                    float r = ((float)y/(float)height) * brightness;
+                    console.printAt(buf, x, (height/2) + (y/2), r, brightness-r, brightness);
+                    console.printAt(buf, x, (height/2) - (y/2), r, brightness-r, brightness);
                 }
             }
         } else if(mode == 1) {
@@ -130,7 +132,7 @@ int main() {
                     //size = 1;
                 //}
                 for(int j = 0; j < (size*scale)+1; ++j) {
-                    float r = ((float)j/(float)(height/2)) * 200;
+                    float r = ((float)j/(float)(height/2)) * brightness;
 
                     //get vector
                     float x = std::sin((float)(a + 180) * 0.0174533);
@@ -147,12 +149,12 @@ int main() {
                     }
 
                     if(j == 0)
-                        r = 155;
+                        r = brightness/2;
 
-                    if(r > 200) {
-                        console.printAt(buf, x, y, 200, 0, 200 - (r - 200));
+                    if(r > brightness) {
+                        console.printAt(buf, x, y, brightness, 0, brightness - (r - brightness));
                     } else {
-                        console.printAt(buf, x, y, r, 200-r, 200);
+                        console.printAt(buf, x, y, r, brightness-r, brightness);
                     }
 
                 }
@@ -187,6 +189,20 @@ int main() {
         } else if(console.keyPressed('C')) {
             if(!pressed) {
                 console.setBackground((char)178, 1, 0, 15);
+            }
+            pressed = true;
+        } else if(console.keyPressed(VK_UP)) {
+            if(!pressed) {
+                brightness += 10;
+                if(brightness > 255)
+                    brightness = 255;
+            }
+            pressed = true;
+        } else if(console.keyPressed(VK_DOWN)) {
+            if(!pressed) {
+                brightness -= 10;
+                if(brightness < 0)
+                    brightness = 0;
             }
             pressed = true;
         } else {
