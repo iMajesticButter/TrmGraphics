@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+#include <windows.h>
 
 int main() {
 
@@ -9,6 +10,9 @@ int main() {
     int height = 50;
 
     TrmGraphics::ConsoleGraphics console(width, height);
+
+    bool pressed = false;
+    int blue = 0;
 
     int i = 0;
     while(true) {
@@ -26,8 +30,26 @@ int main() {
 
         console.printAt("test", x, y, 255-(int)(((float)x/(float)width)*255), (int)(((float)y/(float)height)*255), 0);*/
 
-        console.addRect('#', x-10, y-5, x+10, y+5, 0, 255, 0, 255, 0, 0);
-        console.addRect('#', y-10, x-5, y+10, x+5, 0, 255, 0, 255, 0, 0);
+        int red = 0;
+        if(console.keyPressed(VK_SPACE)) {
+            red = 255;
+        }
+
+        console.addRect('#', x-10, y-5, x+10, y+5, red, 255, 0, 255, 0, blue);
+        console.addRect('#', y-10, x-5, y+10, x+5, red, 255, 0, 255, 0, blue);
+
+        if(console.keyPressed('A')) {
+            if(!pressed) {
+                if(blue == 0) {
+                    blue = 255;
+                } else {
+                    blue = 0;
+                }
+            }
+            pressed = true;
+        } else {
+            pressed = false;
+        }
 
         console.draw();
         ++i;

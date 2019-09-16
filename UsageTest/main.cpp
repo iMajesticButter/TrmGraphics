@@ -6,6 +6,7 @@
 #include <math.h>
 #include <ctime>
 #include <time.h>
+#include <windows.h>
 
 #define UNUSED(x) (void)(x)
 
@@ -62,6 +63,10 @@ int main() {
     //set background
     console.setBackground('#', 1, 0, 15);
 
+    const int modes = 2;
+    int mode = 0;
+    bool pressed = false;
+
     float fft[2048];
 
     clock_t lastTime = clock();
@@ -87,21 +92,80 @@ int main() {
         }
 
         //display fft
-        for(int x = 0; x < width; ++x) {
-            if(x < margin || x >= width-margin-3) {
-                console.printAt("|", x, height/2, 0, 255, 255);
-                continue;
-            }
-            float size = pow(fft[x], 0.9)*15;
-            console.printAt("|", x, height/2, size*255, 0, 0);
-            for(int y = 0; y < size*((height/2)-2)+1; ++y) {
-                if(y > height-4)
+        if(mode == 0) {
+            for(int x = 0; x < width; ++x) {
+                if(x < margin || x >= width-margin-3) {
+                    console.printAt("|", x, height/2, 0, 255, 255);
                     continue;
-                float r = (float)y/(float)height;
-                console.printAt("|", x, (height/2) + (y/2), r, 255-r, 255);
-                console.printAt("|", x, (height/2) - (y/2), r, 255-r, 255);
+                }
+                float size = pow(fft[x], 0.9)*15;
+                console.printAt("|", x, height/2, size*255, 0, 0);
+                for(int y = 0; y < size*((height/2)-2)+1; ++y) {
+                    if(y > height-4)
+                        continue;
+                    float r = ((float)y/(float)height) * 255;
+                    console.printAt("|", x, (height/2) + (y/2), r, 255-r, 255);
+                    console.printAt("|", x, (height/2) - (y/2), r, 255-r, 255);
+                }
+            }
+        } else if(mode == 1) {
+            const float radiusInner = height/6;
+            const float scale = ((height/2) - radiusInner)/5;
+            for(int i = 0, a = 0; a < 360; ++i, a += 4) {
+
+                float size = pow(fft[i], 0.9)*15 + (i/100);
+                //if(size < 1) {
+                    //size = 1;
+                //}
+                for(int j = 0; j < (size*scale)+1; ++j) {
+                    float r = ((float)j/(float)(height/2)) * 255;
+
+                    //get vector
+                    float x = std::sin((float)(a + 180) * 0.0174533);
+                    float y = std::cos((float)(a + 180) * 0.0174533);
+
+                    x *= radiusInner + j;
+                    y *= radiusInner + j;
+
+                    x = (width/2) + x*2;
+                    y = (height/2) + y;
+
+                    if(y > height || y < 0 || x > width || x < 0) {
+                        continue;
+                    }
+
+                    if(j == 0)
+                        r = 255;
+                    console.printAt("#", x, y, r, 255-r, 255);
+
+                }
+
             }
         }
+
+        sprintf(buf, "Mode: %d", mode);
+        console.printAt(buf, 1, height-1);
+
+        if(console.keyPressed(VK_LEFT)) {
+            if(!pressed) {
+                --mode;
+                if(mode < 0) {
+                    mode = modes-1;
+                }
+            }
+            pressed = true;
+        } else if(console.keyPressed(VK_RIGHT)) {
+            if(!pressed) {
+                ++mode;
+                if(mode >= modes) {
+                    mode = 0;
+                }
+            }
+            pressed = true;
+        } else {
+            pressed = false;
+        }
+
         //char buf[32];
         //sprintf(buf, "0: %f", pow(fft[0], 0.9) * 25);
         //console.printAt(buf, 1, 1);

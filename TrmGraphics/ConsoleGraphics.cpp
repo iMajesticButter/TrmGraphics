@@ -290,6 +290,30 @@ namespace TrmGraphics {
         saveBackground();
     }
 
+    //! returns pressed state of give key
+    /*!
+      Input the key in caps or virtual key codes (e.g.'Z' or VK_SPACE)
+      \param k The key to get state from.
+      \returns The pressed state of key *k*
+    */
+    bool ConsoleGraphics::keyPressed(int k) {
+
+    #if defined(PLATFORM_WINDOWS)
+
+        short state = GetKeyState(k);
+
+        return (((unsigned short)state) >> 15) == 1;
+
+    #elif defined(PLATFORM_LINUX)
+
+        //---------------------------------------------
+        //TODO: add linux implementation of keyPressed!
+        //---------------------------------------------
+
+    #endif
+
+    }
+
     // draw everything to the terminal
     /*
       this is the function that actually prints to the terminal.\n

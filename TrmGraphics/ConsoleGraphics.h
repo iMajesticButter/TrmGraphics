@@ -130,6 +130,14 @@ namespace TrmGraphics {
         */
         void setBackground(char c, int r = 255, int g = 255, int b = 255);
 
+        //! returns pressed state of give key
+        /*!
+          Input the key in caps
+          \param k The key to get state from.
+          \returns The pressed state of key *k*
+        */
+        bool keyPressed(int k);
+
         //! draw everything to the terminal
         /*!
           this is the function that actually prints to the terminal.\n
