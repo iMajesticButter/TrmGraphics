@@ -140,7 +140,7 @@ int main() {
                     y *= radiusInner + j;
 
                     x = (width/2) + x*2;
-                    y = (height/2) + y*1.025;
+                    y = (height/2) + y*1.009;
 
                     if(y > height || y < 0 || x > width || x < 0) {
                         continue;

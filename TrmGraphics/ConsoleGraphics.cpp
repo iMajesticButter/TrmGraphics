@@ -299,11 +299,11 @@ namespace TrmGraphics {
     bool ConsoleGraphics::keyPressed(int k) {
 
     #if defined(PLATFORM_WINDOWS)
-
-        short state = GetKeyState(k);
-
-        return (((unsigned short)state) >> 15) == 1;
-
+        if(GetConsoleWindow() == GetForegroundWindow()) {
+            short state = GetKeyState(k);
+            return (((unsigned short)state) >> 15) == 1;
+        }
+        return false;
     #elif defined(PLATFORM_LINUX)
 
         //---------------------------------------------
