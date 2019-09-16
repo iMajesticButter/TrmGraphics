@@ -18,8 +18,8 @@ DWORD CALLBACK Process(void* buffer, DWORD length, void* user) {
 
 int main() {
 
-    const int width = 100;
-    const int height = 41;
+    const int width = 110;
+    const int height = 51;
     const int margin = 6;
 
     TrmGraphics::ConsoleGraphics console(width, height);
@@ -61,13 +61,13 @@ int main() {
     console.draw();
 
     //set background
-    console.setBackground('#', 1, 0, 15);
+    console.setBackground((char)178, 1, 0, 15);
 
     const int modes = 2;
     int mode = 0;
     bool pressed = false;
 
-    float fft[2048];
+    float fft[4096];
 
     clock_t lastTime = clock();
     //update loop
@@ -83,7 +83,7 @@ int main() {
         console.printAt(buf, 1, 1);
 
         //get fft data
-        int ret = BASS_WASAPI_GetData(fft, (int)BASS_DATA_FFT4096);
+        int ret = BASS_WASAPI_GetData(fft, (int)BASS_DATA_FFT8192);
         if(ret < 0) {
             std::cout << "GET DATA ERROR: " << BASS_ErrorGetCode() << std::endl;
             Sleep(10000);
@@ -91,34 +91,46 @@ int main() {
             break;
         }
 
+        int c = 254;
+        buf[0] = (char)c;
+        buf[1] = 0;
+
         //display fft
         if(mode == 0) {
             for(int x = 0; x < width; ++x) {
                 if(x < margin || x >= width-margin-3) {
-                    console.printAt("|", x, height/2, 0, 255, 255);
+                    console.printAt(buf, x, height/2, 0, 255, 255);
                     continue;
                 }
                 float size = pow(fft[x], 0.9)*15;
-                console.printAt("|", x, height/2, size*255, 0, 0);
+                console.printAt(buf, x, height/2, size*255, 0, 0);
                 for(int y = 0; y < size*((height/2)-2)+1; ++y) {
                     if(y > height-4)
                         continue;
                     float r = ((float)y/(float)height) * 255;
-                    console.printAt("|", x, (height/2) + (y/2), r, 255-r, 255);
-                    console.printAt("|", x, (height/2) - (y/2), r, 255-r, 255);
+                    console.printAt(buf, x, (height/2) + (y/2), r, 255-r, 255);
+                    console.printAt(buf, x, (height/2) - (y/2), r, 255-r, 255);
                 }
             }
         } else if(mode == 1) {
-            const float radiusInner = height/6;
-            const float scale = ((height/2) - radiusInner)/5;
+
+            int c = 254;
+            buf[0] = (char)c;
+            buf[1] = 0;
+
+            //const float radiusInner = height/6;
+            const float radiusInner = 5;
+            //const float scale = ((height/2) - radiusInner)/5;
+            const float scale = 15;
             for(int i = 0, a = 0; a < 360; ++i, a += 4) {
 
-                float size = pow(fft[i], 0.9)*15 + (i/100);
+                //float size = pow(fft[i], 0.9)*5 + (i/90);
+                float size = fft[i] * 25;
                 //if(size < 1) {
                     //size = 1;
                 //}
                 for(int j = 0; j < (size*scale)+1; ++j) {
-                    float r = ((float)j/(float)(height/2)) * 255;
+                    float r = ((float)j/(float)(height/2)) * 200;
 
                     //get vector
                     float x = std::sin((float)(a + 180) * 0.0174533);
@@ -128,15 +140,20 @@ int main() {
                     y *= radiusInner + j;
 
                     x = (width/2) + x*2;
-                    y = (height/2) + y;
+                    y = (height/2) + y*1.025;
 
                     if(y > height || y < 0 || x > width || x < 0) {
                         continue;
                     }
 
                     if(j == 0)
-                        r = 255;
-                    console.printAt("#", x, y, r, 255-r, 255);
+                        r = 155;
+
+                    if(r > 200) {
+                        console.printAt(buf, x, y, 200, 0, 200 - (r - 200));
+                    } else {
+                        console.printAt(buf, x, y, r, 200-r, 200);
+                    }
 
                 }
 
@@ -160,6 +177,16 @@ int main() {
                 if(mode >= modes) {
                     mode = 0;
                 }
+            }
+            pressed = true;
+        } else if(console.keyPressed('S')) {
+            if(!pressed) {
+                console.saveBackground();
+            }
+            pressed = true;
+        } else if(console.keyPressed('C')) {
+            if(!pressed) {
+                console.setBackground((char)178, 1, 0, 15);
             }
             pressed = true;
         } else {

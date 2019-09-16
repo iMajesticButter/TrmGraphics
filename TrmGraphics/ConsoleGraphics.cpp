@@ -216,10 +216,10 @@ namespace TrmGraphics {
         x2 = x2 < m_columns ? x2 : m_columns - 1;
         y2 = y2 < m_rows ? y2 : m_rows - 1;
 
-        x1 = x1 >= 1 ? x1 : 1;
-        y1 = y1 >= 1 ? y1 : 1;
-        x2 = x2 >= 1 ? x2 : 1;
-        y2 = y2 >= 1 ? y2 : 1;
+        x1 = x1 >= 0 ? x1 : 0;
+        y1 = y1 >= 0 ? y1 : 0;
+        x2 = x2 >= 0 ? x2 : 0;
+        y2 = y2 >= 0 ? y2 : 0;
 
         //get min/max values
         unsigned int minX = x1 < x2 ? x1 : x2;
@@ -286,7 +286,7 @@ namespace TrmGraphics {
       \param b The blue background color value between 0 and 255. defaults to *255*
     */
     void ConsoleGraphics::setBackground(char c, int r, int g, int b) {
-        addRect(c, 0, 0, m_columns-1, m_rows-1, r,g,b,r,g,b);
+        addRect(c, 0, 0, m_columns, m_rows, r,g,b,r,g,b);
         saveBackground();
     }
 
