@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
+#include <math.h>
 
 //windows stuff
 #if defined(PLATFORM_WINDOWS)
@@ -35,13 +36,6 @@ namespace TrmGraphics {
 
     //----------PUBLIC FUNCTIONS----------
     // ConsoleGraphics constructor
-    /*
-      \param columns The desired width of the terminal.
-      \param rows The desired height of the terminal.
-      \param askForFontSize Sould the Console Manager automatically ask the user for the terminals font size. **Only required on windows**. defaults to *false*
-      \param fontSize Allows you to input the terminals font size **Only works when askForFontSize is false**. deafults to *16* as that is the deafult font size on the windwos terminal
-      \sa print(), printAt() and draw()
-    */
     ConsoleGraphics::ConsoleGraphics(int columns, int rows, bool askForFontSize, int fontSize) {
 
         m_ansiSupported = true;
@@ -139,32 +133,12 @@ namespace TrmGraphics {
     }
 
     // print at cursor position
-    /*
-      print somthing to the terminal starting at current cursor position, with color (r, g, b).\n
-      note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
-      \param str the string to be printed
-      \param r the red color value between 0 and 255. deafults to *255*
-      \param g the green color value between 0 and 255. deafults to *255*
-      \param b the blue color value between 0 and 255. deafults to *255*
-      \sa printAt() and draw()
-    */
     void ConsoleGraphics::print(std::string str, int r, int g, int b) {
         //print str with color (r,g,b) at the cursor position + 1
         printAt(str, m_cursor_index + 1, 0, r, g, b);
     }
 
     // move cursor, then print at new cursor position
-    /*
-      print somthing to the terminal starting at cursor position (x, y), with color (r, g, b).\n
-      note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
-      \param str the string to be printed
-      \param x the x position to print at (row)
-      \param y the y position to print at (column)
-      \param r the red color value between 0 and 255. deafults to *255*
-      \param g the green color value between 0 and 255. deafults to *255*
-      \param b the blue color value between 0 and 255. deafults to *255*
-      \sa printAt() and draw()
-    */
     void ConsoleGraphics::printAt(std::string str, int x, int y, int r, int g, int b){
         if(x < 0) {
             x = 0;
@@ -196,22 +170,6 @@ namespace TrmGraphics {
     }
 
     // print a rectangle to the back buffers
-    /*
-      print a fill-able rectangle to the back buffer to be drawn.\n
-      note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
-      \param c The character to print the rectangle out of
-      \param x1 The x position of the *first* corner
-      \param y1 The y position of the *first* corner
-      \param x2 The x position of the *opposite* corner
-      \param y2 The y position of the *opposite* corner
-      \param rFill the red *fill* color value between 0 and 255. deafults to *255*
-      \param gFill the green *fill* color value between 0 and 255. deafults to *255*
-      \param bFill the blue *fill* color value between 0 and 255. deafults to *255*
-      \param rBorder the red *border* color value between 0 and 255. deafults to *255*
-      \param gBorder the green *border* color value between 0 and 255. deafults to *255*
-      \param bBorder the blue *border* color value between 0 and 255. deafults to *255*
-      \param fill Should the rectangle be filled
-    */
     void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill){
 
         //if border colors are unset, set them to fill colors
@@ -259,24 +217,55 @@ namespace TrmGraphics {
 
     }
     // print a rectangle to the back buffers
-    /*
-      print a fill-able rectangle to the back buffer to be drawn, this overload is more suitable for non-filled rectangles.\n
-      note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
-      \param c The character to print the rectangle out of
-      \param x1 The x position of the *first* corner
-      \param y1 The y position of the *first* corner
-      \param x2 The x position of the *opposite* corner
-      \param y2 The y position of the *opposite* corner
-      \param fill Should the rectangle be filled
-      \param rBorder the red *border* color value between 0 and 255. deafults to *255*
-      \param gBorder the green *border* color value between 0 and 255. deafults to *255*
-      \param bBorder the blue *border* color value between 0 and 255. deafults to *255*
-      \param rFill the red *fill* color value between 0 and 255. deafults to *255*
-      \param gFill the green *fill* color value between 0 and 255. deafults to *255*
-      \param bFill the blue *fill* color value between 0 and 255. deafults to *255*
-    */
     void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill){
         addRect(c, x1, y1, x2, y2, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
+    }
+
+    //! print a line to the back buffer
+    void ConsoleGraphics::addLine(char c, int x1, int y1, int x2, int y2, int r, int g, int b) {
+
+        //clamp coordinates to valid coordiantes
+        //x1 = x1 >= 0 ? x1 : 0;
+        //x2 = x2 >= 0 ? x2 : 0;
+        //y1 = y1 >= 0 ? y1 : 0;
+        //y2 = y2 >= 0 ? y2 : 0;
+
+        //x1 = x1 < m_columns ? x1 : m_columns - 1;
+        //x2 = x2 < m_columns ? x2 : m_columns - 1;
+        //y1 = y1 < m_rows ? y1 : m_rows - 1;
+        //y2 = y2 < m_rows ? y2 : m_rows - 1;
+
+        //get distance between two points
+        float dst = sqrt(pow(abs(x1 - x2),2) + pow(abs(y1 - y2), 2));
+        //float dst = abs(x1 - x2) + abs(y1 - y2);
+
+        //get vector from point1 to point2
+        float vecX = x2 - x1;
+        float vecY = y2 - y1;
+
+        //normalize vector
+        float a = atan2(vecY, vecX);
+        vecX = sin(a);
+        vecY = cos(a);
+
+        //draw line to backbuffer
+        for(int i = 0; i <= dst; ++i) {
+            float nVecX = round(vecX * i);
+            float nVecY = round(vecY * i);
+            int index = getIndex(x1 + nVecX, y1 + nVecY);
+            //int index = getIndex(x1 + (vecX * dst), y1 + (vecY * dst));
+
+            if(index >= 0 && index < m_rows * m_columns) {
+
+                m_backBuffer[index].c = c;
+                m_backBuffer[index].r = r;
+                m_backBuffer[index].g = g;
+                m_backBuffer[index].b = b;
+
+            }
+
+        }
+
     }
 
     //! saved the current back buffer as the background
@@ -288,23 +277,12 @@ namespace TrmGraphics {
     }
 
     //! will set the background to this char in the color r,g,b
-    /*!
-      \param c The character to set as the background.
-      \param r The red background color value between 0 and 255. defaults to *255*
-      \param g The green background color value between 0 and 255. defaults to *255*
-      \param b The blue background color value between 0 and 255. defaults to *255*
-    */
     void ConsoleGraphics::setBackground(char c, int r, int g, int b) {
         addRect(c, 0, 0, m_columns, m_rows, r,g,b,r,g,b);
         saveBackground();
     }
 
     //! returns pressed state of give key
-    /*!
-      Input the key in caps or virtual key codes (e.g.'Z' or VK_SPACE)
-      \param k The key to get state from.
-      \returns The pressed state of key *k*
-    */
     bool ConsoleGraphics::keyPressed(int k) {
 
     #if defined(PLATFORM_WINDOWS)
@@ -324,15 +302,6 @@ namespace TrmGraphics {
     }
 
     // draw everything to the terminal
-    /*
-      this is the function that actually prints to the terminal.\n
-      draw everything that has been written to the back buffer.
-      this is **required** if you want anything that you printed to actually show up on screen.
-      it is recommended that you only call this **once per program loop** as it is more efficient.\n
-      note: will not display anything if nothing has been printed.
-      \param override clear the backbuffer erasing everything on next draw. deafults to *true*
-      \sa print() and printAt()
-    */
     void ConsoleGraphics::draw(bool override){
 
         //check for differences between the front and back buffers

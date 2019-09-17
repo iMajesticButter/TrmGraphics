@@ -79,7 +79,7 @@ namespace TrmGraphics {
         //! print a rectangle to the back buffers
         /*!
           print a fill-able rectangle to the back buffer to be drawn.\n
-          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
           \param c The character to print the rectangle out of
           \param x1 The x position of the *first* corner
           \param y1 The y position of the *first* corner
@@ -95,10 +95,11 @@ namespace TrmGraphics {
           \sa printAt(), print(), draw()
         */
         void addRect(char c, int x1, int y1, int x2, int y2, int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
+
         //! print a rectangle to the back buffers
         /*!
           print a fill-able rectangle to the back buffer to be drawn, this overload is more suitable for non-filled rectangles.\n
-          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
           \param c The character to print the rectangle out of
           \param x1 The x position of the *first* corner
           \param y1 The y position of the *first* corner
@@ -114,6 +115,21 @@ namespace TrmGraphics {
           \sa printAt(), print(), draw()
         */
         void addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
+
+        //! print a line to the back buffer
+        /*!
+          print a color-able line from x1,y1 to x2,y2 on the back buffer\n
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
+          \param c The character to print the line out of
+          \param x1 The x position of the line starting point
+          \param y1 The y position of the line starting point
+          \param x2 The x position of the line ending point
+          \param y2 The y position of the line ending point
+          \param r the red color value of the line between 0 and 255. defalts to *255*
+          \param g the green color value of the line between 0 and 255. defalts to *255*
+          \param b the blue color value of the line between 0 and 255. defalts to *255*
+        */
+        void addLine(char c, int x1, int y1, int x2, int y2, int r = 255, int g = 255, int b = 255);
 
         //! saved the current back buffer as the background
         /*!

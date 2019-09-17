@@ -38,6 +38,13 @@ int main() {
         console.addRect('#', x-10, y-5, x+10, y+5, red, 255, 0, 255, 0, blue);
         console.addRect('#', y-10, x-5, y+10, x+5, red, 255, 0, 255, 0, blue);
 
+        console.addLine('/', 10, 10, 40, sn * 100, 255, 255, 255);
+
+        console.addLine('-', 0, 0, width-1, 0);
+        console.addLine('-', 0, height-1, width-1, height-1);
+        console.addLine('|', 0, 0, 0, height-1);
+        console.addLine('|', width-1, 0, width-1, height-1);
+
         if(console.keyPressed('A')) {
             if(!pressed) {
                 if(blue == 0) {
