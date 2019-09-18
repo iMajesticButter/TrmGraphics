@@ -6,6 +6,9 @@
 #include <cstdlib>
 #include <algorithm>
 #include <math.h>
+#include <ctime>
+#include <time.h>
+#include <sstream>
 
 //windows stuff
 #if defined(PLATFORM_WINDOWS)
@@ -34,9 +37,34 @@ namespace TrmGraphics {
 
     };
 
+    //----------LOCAL FUNCTIONS-----------
+
+    //edge function for triangle rasterizer
+    bool edgeFunc(const float x1, const float y1, const float x2, const float y2, const float pX, const float pY) {
+        return ((pX - x1) * (y2 - y1) - (pY - y1) * (x2 - x1) >= 0);
+    }
+
+    //basic min max functions that take 3 arguments
+    int min3(const int a, const int b, const int c) {
+        return std::min(a, b) < std::min(b, c) ? std::min(a, b) : std::min(b, c);
+    }
+    int max3(const int a, const int b, const int c) {
+        return std::max(a, b) > std::max(b, c) ? std::max(a, b) : std::max(b, c);
+    }
+
+    //basic clamp function
+    void clamp(int& i, const int min, const int max) {
+        i = i >= min ? i : min;
+        i = i <= max ? i : max;
+    }
+
     //----------PUBLIC FUNCTIONS----------
     // ConsoleGraphics constructor
     ConsoleGraphics::ConsoleGraphics(int columns, int rows, bool askForFontSize, int fontSize) {
+
+        m_deltaTime = 0;
+
+        m_lastTime = clock();
 
         m_ansiSupported = true;
 
@@ -80,7 +108,7 @@ namespace TrmGraphics {
         HWND consoleHWND = GetConsoleWindow();
         RECT r;
         GetWindowRect(consoleHWND, &r);
-        MoveWindow(consoleHWND, r.left, r.top, m_columns*(int)((float)fontSize/2.0f), (2+m_rows)*fontSize, TRUE);
+        MoveWindow(consoleHWND, r.left, r.top, (m_columns+5)*(int)((float)fontSize/2.0f), (3+m_rows)*fontSize, TRUE);
 
         if(!m_ansiSupported) {
             //hide cursor
@@ -97,10 +125,10 @@ namespace TrmGraphics {
 
         if(m_ansiSupported) {
             //attempt to resize the console using ansi escape codes
-            printf("\033[%d;%df", m_rows, m_columns);
+            printf("\033[%d;%df", m_rows+1, m_columns+1);
             printf("\033[=7h");
-            printf("\033[%d;%df", m_rows, m_columns);
-            printf("\033[8;%d;%dt", m_rows, m_columns);
+            printf("\033[%d;%df", m_rows+1, m_columns+1);
+            printf("\033[8;%d;%dt", m_rows+1, m_columns+1);
 
             //try to hide the cursor
             printf("\033[?25l");
@@ -132,6 +160,103 @@ namespace TrmGraphics {
         m_background = nullptr;
     }
 
+    //! Get time between last updates
+    float ConsoleGraphics::getDeltaTime() {
+        return m_deltaTime;
+    }
+
+    //! Set the cursor position to x,y
+    void ConsoleGraphics::setCursorPos(int x, int y){
+        m_cursor_index = getIndex(x, y);
+        if(m_cursor_index >= m_rows * m_columns) {
+            m_cursor_index = 0;
+        }
+    }
+
+    // Operator<<
+    void ConsoleGraphics::operator<< (short val){
+        char buf[32];
+        sprintf(buf, "%hd", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (unsigned short val){
+        char buf[32];
+        sprintf(buf, "%hu", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (int val){
+        char buf[32];
+        sprintf(buf, "%d", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (unsigned int val){
+        char buf[32];
+        sprintf(buf, "%hd", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (long val){
+        char buf[32];
+        sprintf(buf, "%ld", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (unsigned long val){
+        char buf[32];
+        sprintf(buf, "%lu", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (float val){
+        char buf[32];
+        sprintf(buf, "%f", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (double val){
+        char buf[32];
+        sprintf(buf, "%f", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (long double val){
+        char buf[32];
+        sprintf(buf, "%f", (double)val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (void* val){
+        char buf[32];
+        sprintf(buf, "%p", val);
+        print(buf);
+    }
+    void ConsoleGraphics::operator<< (std::streambuf* sb ){
+        std::ostringstream ss;
+        ss << sb;
+        print(ss.str());
+    }
+    void ConsoleGraphics::operator<< (std::ostream& (*pf)(std::ostream&)){
+        std::ostringstream ss;
+        ss << pf;
+        print(ss.str());
+    }
+    void ConsoleGraphics::operator<< (std::ios& (*pf)(std::ios&)){
+        std::ostringstream ss;
+        ss << pf;
+        print(ss.str());
+    }
+    void ConsoleGraphics::operator<< (std::ios_base& (*pf)(std::ios_base&)){
+        std::ostringstream ss;
+        ss << pf;
+        print(ss.str());
+    }
+    void ConsoleGraphics::operator<< (std::string str){
+        print(str);
+    }
+    void ConsoleGraphics::operator<< (bool val){
+        val ? print("true") : print("false");
+    }
+    void ConsoleGraphics::operator<< (const char* val){
+        print(std::string(val));
+    }
+
+
+
+
     // print at cursor position
     void ConsoleGraphics::print(std::string str, int r, int g, int b) {
         //print str with color (r,g,b) at the cursor position + 1
@@ -139,7 +264,7 @@ namespace TrmGraphics {
     }
 
     // move cursor, then print at new cursor position
-    void ConsoleGraphics::printAt(std::string str, int x, int y, int r, int g, int b){
+    void ConsoleGraphics::printAt(std::string str, int x, int y, int r, int g, int b) {
         if(x < 0) {
             x = 0;
         }
@@ -169,8 +294,22 @@ namespace TrmGraphics {
 
     }
 
+    //! print at cursor position
+    void ConsoleGraphics::print(char c, int r, int g, int b) {
+        char buf[2];
+        sprintf(buf, "%c", c);
+        print(buf, r, g, b);
+    }
+
+    //! move cursor, then print at new cursor position
+    void ConsoleGraphics::printAt(char c, int x, int y, int r, int g, int b) {
+        char buf[2];
+        sprintf(buf, "%c", c);
+        printAt(buf, x, y, r, g, b);
+    }
+
     // print a rectangle to the back buffers
-    void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill){
+    void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
 
         //if border colors are unset, set them to fill colors
         rBorder = rBorder == -1 ? rFill : rBorder;
@@ -217,7 +356,7 @@ namespace TrmGraphics {
 
     }
     // print a rectangle to the back buffers
-    void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill){
+    void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
         addRect(c, x1, y1, x2, y2, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
@@ -245,14 +384,14 @@ namespace TrmGraphics {
 
         //normalize vector
         float a = atan2(vecY, vecX);
-        vecX = sin(a);
-        vecY = cos(a);
+        vecX = cos(a);
+        vecY = sin(a);
 
         //draw line to backbuffer
         for(int i = 0; i <= dst; ++i) {
             float nVecX = round(vecX * i);
             float nVecY = round(vecY * i);
-            int index = getIndex(x1 + nVecX, y1 + nVecY);
+            int index = getIndex(y1 + nVecY, x1 + nVecX);
             //int index = getIndex(x1 + (vecX * dst), y1 + (vecY * dst));
 
             if(index >= 0 && index < m_rows * m_columns) {
@@ -266,6 +405,157 @@ namespace TrmGraphics {
 
         }
 
+    }
+
+    //! print a triangle to the back buffer
+    void ConsoleGraphics::addTri(char c, int x1, int y1, int x2, int y2, int x3, int y3, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+        //if any of the border colors are set, draw the borders later, otherwise dont
+        bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
+        if(!fill)
+            drawBorders = true;
+
+        //set border color to fill color if unset
+        rBorder = rBorder == -1 ? rFill : rBorder;
+        gBorder = gBorder == -1 ? gFill : gBorder;
+        bBorder = bBorder == -1 ? bFill : bBorder;
+
+        if(fill) {
+            //get range of triangle
+            int minX = min3(x1, x2, x3);
+            int minY = min3(y1, y2, y3);
+            int maxX = max3(x1, x2, x3);
+            int maxY = max3(y1, y2, y3);
+
+            //clamp tri range to be inside valid area
+            clamp(minX, 0, m_columns-1);
+            clamp(minY, 0, m_rows-1);
+            clamp(maxX, 0, m_columns-1);
+            clamp(maxY, 0, m_rows-1);
+
+            //run rasterization algorithm
+            for(int x = minX; x <= maxX; ++x) {
+                for(int y = minY; y <= maxY; ++y) {
+
+                    bool fill = true;
+                    fill &= edgeFunc(x1, y1, x2, y2, x, y);
+                    fill &= edgeFunc(x2, y2, x3, y3, x, y);
+                    fill &= edgeFunc(x3, y3, x1, y1, x, y);
+                    if(!fill){
+                        fill = true;
+                        fill &= !edgeFunc(x1, y1, x2, y2, x, y);
+                        fill &= !edgeFunc(x2, y2, x3, y3, x, y);
+                        fill &= !edgeFunc(x3, y3, x1, y1, x, y);
+                    }
+
+                    if(fill) {
+                        //pixel is part of the triangle!
+                        m_backBuffer[getIndex(y, x)].c = c;
+                        m_backBuffer[getIndex(y, x)].r = rFill;
+                        m_backBuffer[getIndex(y, x)].g = gFill;
+                        m_backBuffer[getIndex(y, x)].b = bFill;
+                    }
+                }
+            }
+        }
+
+        //draw borders
+        if(drawBorders) {
+            addLine(c, x1, y1, x2, y2, rBorder, gBorder, bBorder);
+            addLine(c, x2, y2, x3, y3, rBorder, gBorder, bBorder);
+            addLine(c, x3, y3, x1, y1, rBorder, gBorder, bBorder);
+        }
+
+    }
+
+    void ConsoleGraphics::addTri(char c, int x1, int y1, int x2, int y2, int x3, int y3, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
+        addTri(c, x1, y1, x2, y2, x3, y3, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
+    }
+
+    //! print an ellipse to the back buffer
+    void ConsoleGraphics::addEllipse(char c, int xPos, int yPos, float xSize, float ySize, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+        //if any of the border colors are set, draw the borders later, otherwise dont
+        bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
+        if(!fill)
+            drawBorders = true;
+
+        //set border color to fill color if unset
+        rBorder = rBorder == -1 ? rFill : rBorder;
+        gBorder = gBorder == -1 ? gFill : gBorder;
+        bBorder = bBorder == -1 ? bFill : bBorder;
+
+        if(fill) {
+            //draw ellipse fill
+
+            //hange negative sizes
+            xSize = abs(xSize);
+            ySize = abs(ySize);
+
+            //get range of ellipse
+            int minX = xPos - xSize;
+            int minY = yPos - ySize;
+            int maxX = xPos + xSize;
+            int maxY = yPos + ySize;
+
+            //clamp ellipse range to be inside valid area
+            clamp(minX, 0, m_columns-1);
+            clamp(minY, 0, m_rows-1);
+            clamp(maxX, 0, m_columns-1);
+            clamp(maxY, 0, m_rows-1);
+
+            //fill in ellispse
+            for(int x = minX; x <= maxX; ++x) {
+                for(int y = minY; y <= maxY; ++y) {
+
+                    int xrel = xPos - x;
+                    int yrel = yPos - y;
+
+                    if(fill && xrel*xrel*ySize*ySize+yrel*yrel*xSize*xSize <= ySize*ySize*xSize*xSize) {
+
+                        int index = getIndex(y, x);
+
+                        m_backBuffer[index].c = c;
+                        m_backBuffer[index].r = rFill;
+                        m_backBuffer[index].g = gFill;
+                        m_backBuffer[index].b = bFill;
+
+                    }
+
+                }
+            }
+        }
+
+        /*float vecX = cos(0.876058042) * xSize;
+        float vecY = sin(0.876058042) * ySize;
+
+        int index = getIndex(yPos + vecY, xPos + vecX);
+
+        m_backBuffer[index].c = c;
+        m_backBuffer[index].r = rBorder;
+        m_backBuffer[index].g = gBorder;
+        m_backBuffer[index].b = bBorder;*/
+        if(drawBorders) {
+            for(int a = 0; a < 360; ++a) {
+                float vecX = cos(a * 0.0174533) * xSize;
+                float vecY = sin(a * 0.0174533) * ySize;
+
+                if(xPos + vecX < 0 || xPos+vecX >= m_columns || yPos + vecY < 0 || yPos + vecY >= m_rows) {
+                    continue;
+                }
+
+                int index = getIndex(std::round(yPos + vecY), std::round(xPos + vecX));
+
+                m_backBuffer[index].c = c;
+                m_backBuffer[index].r = rBorder;
+                m_backBuffer[index].g = gBorder;
+                m_backBuffer[index].b = bBorder;
+            }
+        }
+
+    }
+
+    //! print an ellipse to the back buffer
+    void ConsoleGraphics::addEllipse(char c, int xPos, int yPos, float xSize, float ySize, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
+        addEllipse(c, xPos, yPos, xSize, ySize, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
     //! saved the current back buffer as the background
@@ -302,7 +592,7 @@ namespace TrmGraphics {
     }
 
     // draw everything to the terminal
-    void ConsoleGraphics::draw(bool override){
+    void ConsoleGraphics::draw(bool override) {
 
         //check for differences between the front and back buffers
         //when one is found, set the color to its color, then set the cursor to its position and print it!
@@ -317,15 +607,19 @@ namespace TrmGraphics {
                         lastB = backPix.b;
                         setConsoleColor(backPix.r,backPix.g,backPix.b);
                     }
-                    if(m_ansiSupported) {
-                        printf("\033[%d;%df%c", r, c, backPix.c);
+                    bool winWay = false;
+                #if defined(PLATFORM_WINDOWS)
+                    winWay = true;
+                #endif
+                    if(m_ansiSupported && !winWay) {
+                        printf("\033[%d;%df%c", r+1, c+1, backPix.c);
                     } else {
                     #if defined(PLATFORM_WINDOWS)
                         int nC = c, nR = r;
-                        if(c > m_columns - 8)
-                            nC = m_columns - 8;
-                        if(r > m_rows - 3)
-                            nR = m_rows - 3;
+                        if(c > m_columns)
+                            nC = m_columns;
+                        if(r > m_rows)
+                            nR = m_rows;
                         COORD p = {(short)nC, (short)nR};
                         SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
                         printf("%c", backPix.c);
@@ -344,6 +638,10 @@ namespace TrmGraphics {
         if(override) {
             memcpy(m_backBuffer, m_background, sizeof(cPixel) * (m_rows * m_columns));
         }
+
+        //get delta time
+        m_deltaTime = float(clock() - m_lastTime) / CLOCKS_PER_SEC;
+        m_lastTime = clock();
 
     }
 

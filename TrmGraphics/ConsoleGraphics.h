@@ -3,6 +3,7 @@
 #define TrmGraphics_ConsoleGraphics_HEADER
 
 #include <string>
+#include <iostream>
 
 #include "preC.h"
 
@@ -50,6 +51,35 @@ namespace TrmGraphics {
         //! ConsoleGraphics destructor
         ~ConsoleGraphics();
 
+        //! Get time between last updates
+        float getDeltaTime();
+
+        //! Set the cursor position to x,y
+        /*!
+          \param x The columns to set the cursor position to
+          \param y The row to set the cursor position to
+        */
+        void setCursorPos(int x, int y);
+
+        // Operator<<
+        void operator<< (short val);
+        void operator<< (unsigned short val);
+        void operator<< (int val);
+        void operator<< (unsigned int val);
+        void operator<< (long val);
+        void operator<< (unsigned long val);
+        void operator<< (float val);
+        void operator<< (double val);
+        void operator<< (long double val);
+        void operator<< (void* val);
+        void operator<< (std::streambuf* sb );
+        void operator<< (std::ostream& (*pf)(std::ostream&));
+        void operator<< (std::ios& (*pf)(std::ios&));
+        void operator<< (std::ios_base& (*pf)(std::ios_base&));
+        void operator<< (std::string str);
+        void operator<< (bool val);
+        void operator<< (const char* val);
+
         //! print at cursor position
         /*!
           print somthing to the terminal starting at current cursor position, with color (r, g, b).\n
@@ -75,6 +105,32 @@ namespace TrmGraphics {
           \sa printAt(), draw(), addRect()
         */
         void printAt(std::string str, int x, int y, int r = 255, int g = 255, int b = 255);
+
+        //! print at cursor position
+        /*!
+          print character to the terminal starting at current cursor position, with color (r, g, b).\n
+          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
+          \param c the character to be printed
+          \param r the red color value between 0 and 255. deafults to *255*
+          \param g the green color value between 0 and 255. deafults to *255*
+          \param b the blue color value between 0 and 255. deafults to *255*
+          \sa printAt() and draw()
+        */
+        void print(char c, int r = 255, int g = 255, int b = 255);
+
+        //! move cursor, then print at new cursor position
+        /*!
+          print character to the terminal starting at cursor position (x, y), with color (r, g, b).\n
+          note: This function **only** prints to the back buffer, to actually draw the draw() function has to be called.
+          \param c the character to be printed
+          \param x the x position to print at (row)
+          \param y the y position to print at (column)
+          \param r the red color value between 0 and 255. deafults to *255*
+          \param g the green color value between 0 and 255. deafults to *255*
+          \param b the blue color value between 0 and 255. deafults to *255*
+          \sa printAt(), draw(), addRect()
+        */
+        void printAt(char c, int x, int y, int r = 255, int g = 255, int b = 255);
 
         //! print a rectangle to the back buffers
         /*!
@@ -128,8 +184,92 @@ namespace TrmGraphics {
           \param r the red color value of the line between 0 and 255. defalts to *255*
           \param g the green color value of the line between 0 and 255. defalts to *255*
           \param b the blue color value of the line between 0 and 255. defalts to *255*
+          \sa draw()
         */
         void addLine(char c, int x1, int y1, int x2, int y2, int r = 255, int g = 255, int b = 255);
+
+        //! print a triangle to the back buffer
+        /*!
+          print a color-able triangle with vertecies x1,y1 x2,y2 x3,y3 to the back buffer\n
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
+          \param c The character to prin the triangle out out of
+          \param x1 The x position of vertex 1
+          \param y1 The y position of vertex 1
+          \param x2 The x position of vertex 2
+          \param y2 The y position of vertex 2
+          \param x3 The x position of vertex 3
+          \param y3 The y position of vertex 3
+          \param rFill the red color value of the triangle fill between 0 and 255. defalts to *255*
+          \param gFill the green color value of the triangle fill between 0 and 255. defalts to *255*
+          \param bFill the blue color value of the triangle fill between 0 and 255. defalts to *255*
+          \param rBorder the red color value of the triangle border between 0 and 255. defalts to *rFill*
+          \param gBorder the green color value of the triangle border between 0 and 255. defalts to *gFill*
+          \param bBorder the blue color value of the triangle border between 0 and 255. defalts to *bFill*
+          \param fill should the triangle be filled
+          \sa draw()
+        */
+        void addTri(char c, int x1, int y1, int x2, int y2, int x3, int y3, int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
+
+        //! print a triangle to the back buffer
+        /*!
+          print a color-able triangle with vertecies x1,y1 x2,y2 x3,y3 to the back buffer, this Overload is sutible for non-filled triangles\n
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
+          \param c The character to prin the triangle out out of
+          \param x1 The x position of vertex 1
+          \param y1 The y position of vertex 1
+          \param x2 The x position of vertex 2
+          \param y2 The y position of vertex 2
+          \param x3 The x position of vertex 3
+          \param y3 The y position of vertex 3
+          \param fill should the triangle be filled
+          \param rFill the red color value of the triangle fill between 0 and 255. defalts to *255*
+          \param gFill the green color value of the triangle fill between 0 and 255. defalts to *255*
+          \param bFill the blue color value of the triangle fill between 0 and 255. defalts to *255*
+          \param rBorder the red color value of the triangle border between 0 and 255. defalts to *rFill*
+          \param gBorder the green color value of the triangle border between 0 and 255. defalts to *gFill*
+          \param bBorder the blue color value of the triangle border between 0 and 255. defalts to *bFill*
+          \sa draw()
+        */
+        void addTri(char c, int x1, int y1, int x2, int y2, int x3, int y3, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
+
+        //! print an ellipse to the back buffer
+        /*!
+          print a color-able ellipse with mid point xPos,yPos and scale xSize,ySize to the back buffer\n
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
+          \param c The character to print the ellipse out out out of
+          \param xPos The x position of the ellipse
+          \param yPos The y position of the ellipse
+          \param xSize The x size of the ellipse
+          \param ySize The y size of the ellipse
+          \param rFill the red color value of the ellipse fill between 0 and 255. defalts to *255*
+          \param gFill the green color value of the ellipse fill between 0 and 255. defalts to *255*
+          \param bFill the blue color value of the ellipse fill between 0 and 255. defalts to *255*
+          \param rBorder the red color value of the ellipse border between 0 and 255. defalts to *rFill*
+          \param gBorder the green color value of the ellipse border between 0 and 255. defalts to *gFill*
+          \param bBorder the blue color value of the ellipse border between 0 and 255. defalts to *bFill*
+          \sa draw()
+        */
+        void addEllipse(char c, int xPos, int yPos, float xSize, float ySize, int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
+
+        //! print an ellipse to the back buffer
+        /*!
+          print a color-able ellipse with mid point xPos,yPos and scale xSize,ySize to the back buffer, this Overload is sutible for non-filled ellipses\n
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
+          \param c The character to print the ellipse out out out of
+          \param xPos The x position of the ellipse
+          \param yPos The y position of the ellipse
+          \param xSize The x size of the ellipse
+          \param ySize The y size of the ellipse
+          \param rFill the red color value of the ellipse fill between 0 and 255. defalts to *255*
+          \param gFill the green color value of the ellipse fill between 0 and 255. defalts to *255*
+          \param bFill the blue color value of the ellipse fill between 0 and 255. defalts to *255*
+          \param rBorder the red color value of the ellipse border between 0 and 255. defalts to *rFill*
+          \param gBorder the green color value of the ellipse border between 0 and 255. defalts to *gFill*
+          \param bBorder the blue color value of the ellipse border between 0 and 255. defalts to *bFill*
+          \sa draw()
+        */
+        void addEllipse(char c, int xPos, int yPos, float xSize, float ySize, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
+
 
         //! saved the current back buffer as the background
         /*!
@@ -184,6 +324,10 @@ namespace TrmGraphics {
         int m_columns;
 
         int m_cursor_index;
+
+        float m_deltaTime;
+
+        double m_lastTime;
 
     };
 
