@@ -10,6 +10,9 @@
 #include <time.h>
 #include <sstream>
 
+#include "vec2D.h"
+#include "vec3D.h"
+
 //windows stuff
 #if defined(PLATFORM_WINDOWS)
     #include <Windows.h>

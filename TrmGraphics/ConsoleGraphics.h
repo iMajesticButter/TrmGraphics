@@ -25,6 +25,8 @@ namespace TrmGraphics {
     //typedef class string string;
 
     typedef struct cPixel cPixel;
+    typedef class vec2D vec2D;
+    typedef class vec3D vec3D;
 
     //! Graphical Console Manager
     /*!
