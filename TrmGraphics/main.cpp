@@ -20,7 +20,7 @@ int main() {
     //set background'
     for(int x = 0; x < width; ++x) {
         for(int y = 0; y < height; ++y) {
-            console.printAt((char)178, x, y, 0, 0, 255*((float)y / height));
+            console.printAt((char)178, x, y, 255*((float)x / width), 0, 255*((float)y / height));
         }
     }
 
