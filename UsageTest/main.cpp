@@ -10,6 +10,9 @@
 
 #define UNUSED(x) (void)(x)
 
+using TrmGraphics::vec2D;
+using TrmGraphics::vec3D;
+
 DWORD CALLBACK Process(void* buffer, DWORD length, void* user) {
     UNUSED(buffer);
     UNUSED(user);
@@ -24,6 +27,12 @@ int main() {
 
     TrmGraphics::ConsoleGraphics console(width, height);
 
+    console.printAt("testing", vec2D(10, 10));
+
+    console.draw();
+
+    system("pause");
+
     BASS_WASAPI_DEVICEINFO info;
     int device;
     for(int i = 0; BASS_WASAPI_GetDeviceInfo(i, &info); ++i) {
@@ -31,7 +40,7 @@ int main() {
             device = i;
             char buf[32];
             sprintf(buf, "Device: %d Selected\n", i);
-            console.printAt(buf, 1, 1, 0, 255, 0);
+            console.printAt(buf, vec2D(1, 1), 0, 255, 0);
             console.draw(false);
             break;
         }
@@ -50,7 +59,7 @@ int main() {
         return 1;
     }
 
-    console.printAt("BASS INITAILIZED\n", 1, 2, 0, 255, 0);
+    console.printAt("BASS INITAILIZED\n", vec2D(1, 2), 0, 255, 0);
     console.draw();
 
     Sleep(500);
@@ -82,7 +91,7 @@ int main() {
         char buf[32];
         sprintf(buf, "Updates Per Second: %f", ups);
 
-        console.printAt(buf, 1, 1);
+        console.printAt(buf, vec2D(1, 1));
 
         //get fft data
         int ret = BASS_WASAPI_GetData(fft, (int)BASS_DATA_FFT8192);
@@ -101,17 +110,17 @@ int main() {
         if(mode == 0) {
             for(int x = 0; x < width; ++x) {
                 if(x < margin || x >= width-margin-3) {
-                    console.printAt(buf, x, height/2, 0, brightness, brightness);
+                    console.printAt(buf, vec2D(x, height/2), 0, brightness, brightness);
                     continue;
                 }
                 float size = pow(fft[x], 0.9)*15;
-                console.printAt(buf, x, height/2, size*brightness, 0, 0);
+                console.printAt(buf, vec2D(x, height/2), size*brightness, 0, 0);
                 for(int y = 0; y < size*((height/2)-2)+1; ++y) {
                     if(y > height-4)
                         continue;
                     float r = ((float)y/(float)height) * brightness;
-                    console.printAt(buf, x, (height/2) + (y/2), r, brightness-r, brightness);
-                    console.printAt(buf, x, (height/2) - (y/2), r, brightness-r, brightness);
+                    console.printAt(buf, vec2D(x, (height/2) + (y/2)), r, brightness-r, brightness);
+                    console.printAt(buf, vec2D(x, (height/2) - (y/2)), r, brightness-r, brightness);
                 }
             }
         } else if(mode == 1) {
@@ -152,9 +161,9 @@ int main() {
                         r = brightness/2;
 
                     if(r > brightness) {
-                        console.printAt(buf, x, y, brightness, 0, brightness - (r - brightness));
+                        console.printAt(buf, vec2D(x, y), brightness, 0, brightness - (r - brightness));
                     } else {
-                        console.printAt(buf, x, y, r, brightness-r, brightness);
+                        console.printAt(buf, vec2D(x, y), r, brightness-r, brightness);
                     }
 
                 }
@@ -163,7 +172,7 @@ int main() {
         }
 
         sprintf(buf, "Mode: %d", mode);
-        console.printAt(buf, 1, height-1);
+        console.printAt(buf, vec2D(1, height-1));
 
         if(console.keyPressed(VK_LEFT)) {
             if(!pressed) {

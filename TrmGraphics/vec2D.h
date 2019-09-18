@@ -7,12 +7,12 @@ namespace TrmGraphics {
     class vec2D {
     public:
 
-        float x,y; //! > xy coordnates
+        double x,y; //! > xy coordnates
 
         vec2D();
         vec2D(const vec2D& other);
         vec2D(const vec3D& other);
-        vec2D(const float _x, const float _y);
+        vec2D(const double _x, const double _y);
 
         //! normalize the vector
         void normalize();

@@ -13,7 +13,7 @@ namespace TrmGraphics {
     vec2D::vec2D(const vec3D& other) : x(other.x), y(other.y) {
 
     }
-    vec2D::vec2D(const float _x, const float _y) : x(_x), y(_y) {
+    vec2D::vec2D(const double _x, const double _y) : x(_x), y(_y) {
 
     }
 

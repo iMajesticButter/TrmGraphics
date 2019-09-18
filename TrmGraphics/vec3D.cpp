@@ -13,7 +13,7 @@ namespace TrmGraphics {
     vec3D::vec3D(const vec3D& other) : x(other.x), y(other.y), z(other.z) {
 
     }
-    vec3D::vec3D(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z) {
+    vec3D::vec3D(const double _x, const double _y, const double _z) : x(_x), y(_y), z(_z) {
 
     }
 

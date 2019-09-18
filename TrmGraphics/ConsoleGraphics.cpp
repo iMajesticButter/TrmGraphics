@@ -263,28 +263,28 @@ namespace TrmGraphics {
     // print at cursor position
     void ConsoleGraphics::print(std::string str, int r, int g, int b) {
         //print str with color (r,g,b) at the cursor position + 1
-        printAt(str, m_cursor_index + 1, 0, r, g, b);
+        printAt(str, vec2D(m_cursor_index+1, 0), r, g, b);
     }
 
     // move cursor, then print at new cursor position
-    void ConsoleGraphics::printAt(std::string str, int x, int y, int r, int g, int b) {
-        if(x < 0) {
-            x = 0;
+    void ConsoleGraphics::printAt(std::string str, vec2D pos, int r, int g, int b) {
+        if(pos.x < 0) {
+            pos.x = 0;
         }
-        if(y < 0) {
-            y = 0;
+        if(pos.y < 0) {
+            pos.y = 0;
         }
 
         //add str to backbuffer at position (x, y)
         for(unsigned int i = 0; i < str.length(); ++i) {
-            if(getIndex(y, x + i) == -1) {
+            if(getIndex(pos.y, pos.x + i) == -1) {
                 break;
             }
-            m_backBuffer[getIndex(y, x+i)].c = str[i];
-            m_backBuffer[getIndex(y, x+i)].r = r;
-            m_backBuffer[getIndex(y, x+i)].g = g;
-            m_backBuffer[getIndex(y, x+i)].b = b;
-            m_cursor_index = getIndex(y , x + i);
+            m_backBuffer[getIndex(pos.y, pos.x+i)].c = str[i];
+            m_backBuffer[getIndex(pos.y, pos.x+i)].r = r;
+            m_backBuffer[getIndex(pos.y, pos.x+i)].g = g;
+            m_backBuffer[getIndex(pos.y, pos.x+i)].b = b;
+            m_cursor_index = getIndex(pos.y , pos.x + i);
         }
 
         //char buf[] = {0x1B, '[', 2, ';', 5, 'f', 0};
@@ -305,14 +305,14 @@ namespace TrmGraphics {
     }
 
     //! move cursor, then print at new cursor position
-    void ConsoleGraphics::printAt(char c, int x, int y, int r, int g, int b) {
+    void ConsoleGraphics::printAt(char c, vec2D pos, int r, int g, int b) {
         char buf[2];
         sprintf(buf, "%c", c);
-        printAt(buf, x, y, r, g, b);
+        printAt(buf, pos, r, g, b);
     }
 
     // print a rectangle to the back buffers
-    void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+    void ConsoleGraphics::addRect(char c, vec2D pos1, vec2D pos2, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
 
         //if border colors are unset, set them to fill colors
         rBorder = rBorder == -1 ? rFill : rBorder;
@@ -320,21 +320,21 @@ namespace TrmGraphics {
         bBorder = bBorder == -1 ? bFill : bBorder;
 
         //make sure coordnates are valid
-        x1 = x1 < m_columns ? x1 : m_columns - 1;
-        y1 = y1 < m_rows ? y1 : m_rows - 1;
-        x2 = x2 < m_columns ? x2 : m_columns - 1;
-        y2 = y2 < m_rows ? y2 : m_rows - 1;
+        pos1.x = pos1.x < m_columns ? pos1.x : m_columns - 1;
+        pos1.y = pos1.y < m_rows ? pos1.y : m_rows - 1;
+        pos2.x = pos2.x < m_columns ? pos2.x : m_columns - 1;
+        pos2.y = pos2.y < m_rows ? pos2.y : m_rows - 1;
 
-        x1 = x1 >= 0 ? x1 : 0;
-        y1 = y1 >= 0 ? y1 : 0;
-        x2 = x2 >= 0 ? x2 : 0;
-        y2 = y2 >= 0 ? y2 : 0;
+        pos1.x = pos1.x >= 0 ? pos1.x : 0;
+        pos1.y = pos1.y >= 0 ? pos1.y : 0;
+        pos2.x = pos2.x >= 0 ? pos2.x : 0;
+        pos2.y = pos2.y >= 0 ? pos2.y : 0;
 
         //get min/max values
-        unsigned int minX = x1 < x2 ? x1 : x2;
-        unsigned int minY = y1 < y2 ? y1 : y2;
-        unsigned int maxX = x1 > x2 ? x1 : x2;
-        unsigned int maxY = y1 > y2 ? y1 : y2;
+        unsigned int minX = pos1.x < pos2.x ? pos1.x : pos2.x;
+        unsigned int minY = pos1.y < pos2.y ? pos1.y : pos2.y;
+        unsigned int maxX = pos1.x > pos2.x ? pos1.x : pos2.x;
+        unsigned int maxY = pos1.y > pos2.y ? pos1.y : pos2.y;
 
         for(unsigned int y = minY; y <= maxY; ++y) {
             for(unsigned int x = minX; x <= maxX; ++x) {
@@ -359,31 +359,31 @@ namespace TrmGraphics {
 
     }
     // print a rectangle to the back buffers
-    void ConsoleGraphics::addRect(char c, int x1, int y1, int x2, int y2, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
-        addRect(c, x1, y1, x2, y2, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
+    void ConsoleGraphics::addRect(char c, vec2D pos1, vec2D pos2, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
+        addRect(c, pos1, pos2, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
     //! print a line to the back buffer
-    void ConsoleGraphics::addLine(char c, int x1, int y1, int x2, int y2, int r, int g, int b) {
+    void ConsoleGraphics::addLine(char c, vec2D pos1, vec2D pos2, int r, int g, int b) {
 
         //clamp coordinates to valid coordiantes
-        //x1 = x1 >= 0 ? x1 : 0;
-        //x2 = x2 >= 0 ? x2 : 0;
-        //y1 = y1 >= 0 ? y1 : 0;
-        //y2 = y2 >= 0 ? y2 : 0;
+        //pos1.x = pos1.x >= 0 ? pos1.x : 0;
+        //pos2.x = pos2.x >= 0 ? pos2.x : 0;
+        //pos1.y = pos1.y >= 0 ? pos1.y : 0;
+        //pos2.y = pos2.y >= 0 ? pos2.y : 0;
 
-        //x1 = x1 < m_columns ? x1 : m_columns - 1;
-        //x2 = x2 < m_columns ? x2 : m_columns - 1;
-        //y1 = y1 < m_rows ? y1 : m_rows - 1;
-        //y2 = y2 < m_rows ? y2 : m_rows - 1;
+        //pos1.x = pos1.x < m_columns ? pos1.x : m_columns - 1;
+        //pos2.x = pos2.x < m_columns ? pos2.x : m_columns - 1;
+        //pos1.y = pos1.y < m_rows ? pos1.y : m_rows - 1;
+        //pos2.y = pos2.y < m_rows ? pos2.y : m_rows - 1;
 
         //get distance between two points
-        float dst = sqrt(pow(abs(x1 - x2),2) + pow(abs(y1 - y2), 2));
-        //float dst = abs(x1 - x2) + abs(y1 - y2);
+        float dst = sqrt(pow(abs(pos1.x - pos2.x),2) + pow(abs(pos1.y - pos2.y), 2));
+        //float dst = abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y);
 
         //get vector from point1 to point2
-        float vecX = x2 - x1;
-        float vecY = y2 - y1;
+        float vecX = pos2.x - pos1.x;
+        float vecY = pos2.y - pos1.y;
 
         //normalize vector
         float a = atan2(vecY, vecX);
@@ -394,8 +394,8 @@ namespace TrmGraphics {
         for(int i = 0; i <= dst; ++i) {
             float nVecX = round(vecX * i);
             float nVecY = round(vecY * i);
-            int index = getIndex(y1 + nVecY, x1 + nVecX);
-            //int index = getIndex(x1 + (vecX * dst), y1 + (vecY * dst));
+            int index = getIndex(pos1.y + nVecY, pos1.x + nVecX);
+            //int index = getIndex(pos1.x + (vecX * dst), pos1.y + (vecY * dst));
 
             if(index >= 0 && index < m_rows * m_columns) {
 
@@ -411,7 +411,7 @@ namespace TrmGraphics {
     }
 
     //! print a triangle to the back buffer
-    void ConsoleGraphics::addTri(char c, int x1, int y1, int x2, int y2, int x3, int y3, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+    void ConsoleGraphics::addTri(char c, vec2D pos1, vec2D pos2, vec2D pos3, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
         //if any of the border colors are set, draw the borders later, otherwise dont
         bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
         if(!fill)
@@ -424,10 +424,10 @@ namespace TrmGraphics {
 
         if(fill) {
             //get range of triangle
-            int minX = min3(x1, x2, x3);
-            int minY = min3(y1, y2, y3);
-            int maxX = max3(x1, x2, x3);
-            int maxY = max3(y1, y2, y3);
+            int minX = min3(pos1.x, pos2.x, pos3.x);
+            int minY = min3(pos1.y, pos2.y, pos3.y);
+            int maxX = max3(pos1.x, pos2.x, pos3.x);
+            int maxY = max3(pos1.y, pos2.y, pos3.y);
 
             //clamp tri range to be inside valid area
             clamp(minX, 0, m_columns-1);
@@ -440,14 +440,14 @@ namespace TrmGraphics {
                 for(int y = minY; y <= maxY; ++y) {
 
                     bool fill = true;
-                    fill &= edgeFunc(x1, y1, x2, y2, x, y);
-                    fill &= edgeFunc(x2, y2, x3, y3, x, y);
-                    fill &= edgeFunc(x3, y3, x1, y1, x, y);
+                    fill &= edgeFunc(pos1.x, pos1.y, pos2.x, pos2.y, x, y);
+                    fill &= edgeFunc(pos2.x, pos2.y, pos3.x, pos3.y, x, y);
+                    fill &= edgeFunc(pos3.x, pos3.y, pos1.x, pos1.y, x, y);
                     if(!fill){
                         fill = true;
-                        fill &= !edgeFunc(x1, y1, x2, y2, x, y);
-                        fill &= !edgeFunc(x2, y2, x3, y3, x, y);
-                        fill &= !edgeFunc(x3, y3, x1, y1, x, y);
+                        fill &= !edgeFunc(pos1.x, pos1.y, pos2.x, pos2.y, x, y);
+                        fill &= !edgeFunc(pos2.x, pos2.y, pos3.x, pos3.y, x, y);
+                        fill &= !edgeFunc(pos3.x, pos3.y, pos1.x, pos1.y, x, y);
                     }
 
                     if(fill) {
@@ -463,19 +463,19 @@ namespace TrmGraphics {
 
         //draw borders
         if(drawBorders) {
-            addLine(c, x1, y1, x2, y2, rBorder, gBorder, bBorder);
-            addLine(c, x2, y2, x3, y3, rBorder, gBorder, bBorder);
-            addLine(c, x3, y3, x1, y1, rBorder, gBorder, bBorder);
+            addLine(c, vec2D((int)pos1.x, (int)pos1.y), vec2D((int)pos2.x, (int)pos2.y), rBorder, gBorder, bBorder);
+            addLine(c, vec2D((int)pos2.x, (int)pos2.y), vec2D((int)pos3.x, (int)pos3.y), rBorder, gBorder, bBorder);
+            addLine(c, vec2D((int)pos3.x, (int)pos3.y), vec2D((int)pos1.x, (int)pos1.y), rBorder, gBorder, bBorder);
         }
 
     }
 
-    void ConsoleGraphics::addTri(char c, int x1, int y1, int x2, int y2, int x3, int y3, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
-        addTri(c, x1, y1, x2, y2, x3, y3, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
+    void ConsoleGraphics::addTri(char c, vec2D pos1, vec2D pos2, vec2D pos3, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
+        addTri(c, pos1, pos2, pos3, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
     //! print an ellipse to the back buffer
-    void ConsoleGraphics::addEllipse(char c, int xPos, int yPos, float xSize, float ySize, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+    void ConsoleGraphics::addEllipse(char c, vec2D pos, vec2D size, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
         //if any of the border colors are set, draw the borders later, otherwise dont
         bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
         if(!fill)
@@ -490,14 +490,14 @@ namespace TrmGraphics {
             //draw ellipse fill
 
             //hange negative sizes
-            xSize = abs(xSize);
-            ySize = abs(ySize);
+            size.x = abs(size.x);
+            size.y = abs(size.y);
 
             //get range of ellipse
-            int minX = xPos - xSize;
-            int minY = yPos - ySize;
-            int maxX = xPos + xSize;
-            int maxY = yPos + ySize;
+            int minX = pos.x - size.x;
+            int minY = pos.y - size.y;
+            int maxX = pos.x + size.x;
+            int maxY = pos.y + size.y;
 
             //clamp ellipse range to be inside valid area
             clamp(minX, 0, m_columns-1);
@@ -509,10 +509,10 @@ namespace TrmGraphics {
             for(int x = minX; x <= maxX; ++x) {
                 for(int y = minY; y <= maxY; ++y) {
 
-                    int xrel = xPos - x;
-                    int yrel = yPos - y;
+                    int xrel = pos.x - x;
+                    int yrel = pos.y - y;
 
-                    if(fill && xrel*xrel*ySize*ySize+yrel*yrel*xSize*xSize <= ySize*ySize*xSize*xSize) {
+                    if(fill && xrel*xrel*size.y*size.y+yrel*yrel*size.x*size.x <= size.y*size.y*size.x*size.x) {
 
                         int index = getIndex(y, x);
 
@@ -538,14 +538,14 @@ namespace TrmGraphics {
         m_backBuffer[index].b = bBorder;*/
         if(drawBorders) {
             for(int a = 0; a < 360; ++a) {
-                float vecX = cos(a * 0.0174533) * xSize;
-                float vecY = sin(a * 0.0174533) * ySize;
+                float vecX = cos(a * 0.0174533) * std::ceil(size.x);
+                float vecY = sin(a * 0.0174533) * std::ceil(size.y);
 
-                if(xPos + vecX < 0 || xPos+vecX >= m_columns || yPos + vecY < 0 || yPos + vecY >= m_rows) {
+                if(pos.x + vecX < 0 || pos.x+vecX >= m_columns || pos.y + vecY < 0 || pos.y + vecY >= m_rows) {
                     continue;
                 }
 
-                int index = getIndex(std::round(yPos + vecY), std::round(xPos + vecX));
+                int index = getIndex(std::round(pos.y + vecY), std::round(pos.x + vecX));
 
                 m_backBuffer[index].c = c;
                 m_backBuffer[index].r = rBorder;
@@ -557,8 +557,8 @@ namespace TrmGraphics {
     }
 
     //! print an ellipse to the back buffer
-    void ConsoleGraphics::addEllipse(char c, int xPos, int yPos, float xSize, float ySize, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
-        addEllipse(c, xPos, yPos, xSize, ySize, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
+    void ConsoleGraphics::addEllipse(char c, vec2D pos, vec2D size, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
+        addEllipse(c, pos, size, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
     //! saved the current back buffer as the background
@@ -571,7 +571,7 @@ namespace TrmGraphics {
 
     //! will set the background to this char in the color r,g,b
     void ConsoleGraphics::setBackground(char c, int r, int g, int b) {
-        addRect(c, 0, 0, m_columns, m_rows, r,g,b,r,g,b);
+        addRect(c, vec2D(0, 0), vec2D(m_columns, m_rows), r,g,b,r,g,b);
         saveBackground();
     }
 
