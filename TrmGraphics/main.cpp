@@ -102,19 +102,21 @@ int main() {
             mov += vec3D(0, 0, 1);
         }
         if(console.keyPressed(VK_UP)) {
-            rot += vec3D(1, 0, 0);
+            rot += vec3D(0, 0, 1);
         }
         if(console.keyPressed(VK_DOWN)) {
-            rot += vec3D(-1, 0, 0);
+            rot += vec3D(0, 0, -1);
         }
         if(console.keyPressed(VK_LEFT)) {
-            rot += vec3D(0, 1, 0);
+            rot += vec3D(1, 0, 0);
         }
         if(console.keyPressed(VK_RIGHT)) {
-            rot += vec3D(0, -1, 0);
+            rot += vec3D(-1, 0, 0);
         }
 
+        vec3D dir(cos(camEulerAngles.z), sin(camEulerAngles.z), 1);
 
+        mov *= dir;
 
         camPos += mov * console.getDeltaTime() * moveSpd;
 
