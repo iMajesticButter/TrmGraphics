@@ -7,17 +7,6 @@
 
 #include "preC.h"
 
-#if defined(PLATFORM_WINDOWS)
-    #if defined(WIN_EXPORT)
-        #define EXPORT __declspec(dllexport)
-    #else
-        //#define EXPORT __declspec(dllimport)
-        #define EXPORT
-    #endif
-#else
-    #define EXPORT
-#endif
-
 namespace TrmGraphics {
 
     #define DEFAULT_FONT_SIZE 16
@@ -38,7 +27,7 @@ namespace TrmGraphics {
       to actually display what is printed, you must call the draw() function
       \see draw()
     */
-    class EXPORT ConsoleGraphics {
+    class __declspec(dllexport) ConsoleGraphics {
     public:
         //! ConsoleGraphics constructor
         /*!

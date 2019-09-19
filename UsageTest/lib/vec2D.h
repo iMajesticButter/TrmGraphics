@@ -1,11 +1,9 @@
-#include "preC.h"
-
 namespace TrmGraphics {
 
     typedef class vec3D vec3D;
 
     //! 2d vector containing x and y
-    class __declspec(dllexport) vec2D {
+    class vec2D {
     public:
 
         double x,y; //! > xy coordnates

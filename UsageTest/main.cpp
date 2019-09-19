@@ -1,4 +1,3 @@
-#include <TrmGraphics.h>
 #include <bass.h>
 #include <basswasapi.h>
 #include <string>
@@ -7,6 +6,7 @@
 #include <ctime>
 #include <time.h>
 #include <windows.h>
+#include <TrmGraphics.h>
 
 #define UNUSED(x) (void)(x)
 
@@ -27,12 +27,6 @@ int main() {
 
     TrmGraphics::ConsoleGraphics console(width, height);
 
-    console.printAt("testing", vec2D(10, 10));
-
-    console.draw();
-
-    system("pause");
-
     BASS_WASAPI_DEVICEINFO info;
     int device;
     for(int i = 0; BASS_WASAPI_GetDeviceInfo(i, &info); ++i) {
@@ -40,7 +34,7 @@ int main() {
             device = i;
             char buf[32];
             sprintf(buf, "Device: %d Selected\n", i);
-            console.printAt(buf, vec2D(1, 1), 0, 255, 0);
+            console.printAt(buf, vec2D(0, 0), 0, 255, 0);
             console.draw(false);
             break;
         }
@@ -59,7 +53,7 @@ int main() {
         return 1;
     }
 
-    console.printAt("BASS INITAILIZED\n", vec2D(1, 2), 0, 255, 0);
+    console.printAt("BASS INITAILIZED\n", vec2D(0, 1), 0, 255, 0);
     console.draw();
 
     Sleep(500);
@@ -72,7 +66,7 @@ int main() {
     //set background
     console.setBackground((char)178, 1, 0, 15);
 
-    const int modes = 2;
+    const int modes = 3;
     int mode = 0;
     bool pressed = false;
 
@@ -91,7 +85,7 @@ int main() {
         char buf[32];
         sprintf(buf, "Updates Per Second: %f", ups);
 
-        console.printAt(buf, vec2D(1, 1));
+        console.printAt(buf, vec2D(0, 0));
 
         //get fft data
         int ret = BASS_WASAPI_GetData(fft, (int)BASS_DATA_FFT8192);
@@ -167,6 +161,32 @@ int main() {
                     }
 
                 }
+
+            }
+        } else if(mode == 2) {
+
+            //const float radiusInner = height/6;
+            const float radiusInner = 5;
+            //const float scale = ((height/2) - radiusInner)/5;
+            const float scale = 15;
+            for(int i = 0, a = 0; a < 360; ++i, a += 4) {
+
+                //float size = pow(fft[i], 0.9)*5 + (i/90);
+                float size = fft[i] * 25;
+                //if(size < 1) {
+                    //size = 1;
+                //}
+
+                vec2D vec(sin((float)(a+180) * 0.0174533), cos((float)(a+180) * 0.0174533));
+                vec2D pos(width/2, height/2);
+
+                vec2D start = vec*radiusInner;
+                vec2D end = vec*((size*scale)+radiusInner);
+
+                start *= vec2D(2, 1);
+                end *= vec2D(2, 1);
+
+                console.addLine((char)254, pos+start, pos+end);
 
             }
         }
