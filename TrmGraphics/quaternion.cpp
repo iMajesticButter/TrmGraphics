@@ -16,12 +16,12 @@ namespace TrmGraphics {
 
     }
     quaternion::quaternion(const vec3D euler) {
-        double cy = cos(euler.y * 0.5);
-        double sy = sin(euler.y * 0.5);
-        double cr = cos(euler.z * 0.5);
-        double sr = sin(euler.z * 0.5);
-        double cp = cos(euler.x * 0.5);
-        double sp = sin(euler.x * 0.5);
+        double cy = cos(euler.z * 0.5);
+        double sy = sin(euler.z * 0.5);
+        double cr = cos(euler.x * 0.5);
+        double sr = sin(euler.x * 0.5);
+        double cp = cos(euler.y * 0.5);
+        double sp = sin(euler.y * 0.5);
 
         w = cy * cr * cp + sy * sr * sp;
         x = cy * sr * cp - sy * cr * sp;

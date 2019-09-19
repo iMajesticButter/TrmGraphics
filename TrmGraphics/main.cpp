@@ -13,17 +13,17 @@ using TrmGraphics::quaternion;
 
 int main() {
 
-    const int width = 150;
-    const int height = 75;
-    const bool faces = false;
+    const int width = 100;
+    const int height = 50;
+    const bool faces = true;
     const float moveSpd = 10;
 
     TrmGraphics::ConsoleGraphics console(width, height);
 
     //camera position
-    vec3D camPos(0, 0, 110);
+    vec3D camPos(0, 0, 80);
     quaternion camRot(vec3D(0, 0, 0));
-    vec3D camEulerAngles(0, 0, 0);
+    vec3D camEulerAngles = camRot.getEulerAngles();
 
     //point for a cube
     /*vec3D v1(0, 0,  2);
@@ -60,34 +60,34 @@ int main() {
 
     while(true) {
 
-        console.addTri3D(c, v1, v2, v3, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
-        console.addTri3D(c, v1, v4, v3, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v2, v3, camPos, camRot, 255, 0, 0, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v4, v3, camPos, camRot, 255, 0, 0, 255, 255, 255, faces);
 
-        console.addTri3D(c, v2, v6, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
-        console.addTri3D(c, v2, v3, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v2, v6, v7, camPos, camRot, 0, 255, 0, 255, 255, 255, faces);
+        console.addTri3D(c, v2, v3, v7, camPos, camRot, 0, 255, 0, 255, 255, 255, faces);
 
-        console.addTri3D(c, v1, v5, v8, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
-        console.addTri3D(c, v1, v4, v8, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v5, v8, camPos, camRot, 0, 0, 255, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v4, v8, camPos, camRot, 0, 0, 255, 255, 255, 255, faces);
 
-        console.addTri3D(c, v5, v6, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
-        console.addTri3D(c, v5, v8, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v5, v6, v7, camPos, camRot, 255, 255, 0, 255, 255, 255, faces);
+        console.addTri3D(c, v5, v8, v7, camPos, camRot, 255, 255, 0, 255, 255, 255, faces);
 
-        console.addTri3D(c, v1, v2, v6, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
-        console.addTri3D(c, v1, v5, v6, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v2, v6, camPos, camRot, 0, 255, 255, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v5, v6, camPos, camRot, 0, 255, 255, 255, 255, 255, faces);
 
-        console.addTri3D(c, v4, v3, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
-        console.addTri3D(c, v4, v8, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v4, v3, v7, camPos, camRot, 255, 255, 255, 255, 255, 255, faces);
+        console.addTri3D(c, v4, v8, v7, camPos, camRot, 255, 255, 255, 255, 255, 255, faces);
 
         console.draw();
 
         //camRot = quaternion(camRot.getEulerAngles() + vec3D(1, 0, 0) * console.getDeltaTime()*1);
         vec3D rot;
         vec3D mov;
-        if(console.keyPressed(VK_CONTROL)) {
-            mov += vec3D(0, -1, 0);
-        }
-        if(console.keyPressed(VK_SHIFT)) {
+        if(console.keyPressed('Q')) {
             mov += vec3D(0, 1, 0);
+        }
+        if(console.keyPressed('E')) {
+            mov += vec3D(0, -1, 0);
         }
         if(console.keyPressed('A')) {
             mov += vec3D(1, 0, 0);
@@ -102,21 +102,21 @@ int main() {
             mov += vec3D(0, 0, 1);
         }
         if(console.keyPressed(VK_UP)) {
-            rot += vec3D(0, 0, 1);
-        }
-        if(console.keyPressed(VK_DOWN)) {
-            rot += vec3D(0, 0, -1);
-        }
-        if(console.keyPressed(VK_LEFT)) {
-            rot += vec3D(1, 0, 0);
-        }
-        if(console.keyPressed(VK_RIGHT)) {
             rot += vec3D(-1, 0, 0);
         }
+        if(console.keyPressed(VK_DOWN)) {
+            rot += vec3D(1, 0, 0);
+        }
+        if(console.keyPressed(VK_LEFT)) {
+            rot += vec3D(0, 1, 0);
+        }
+        if(console.keyPressed(VK_RIGHT)) {
+            rot += vec3D(0, -1, 0);
+        }
 
-        vec3D dir(cos(camEulerAngles.z), sin(camEulerAngles.z), 1);
+        //vec3D dir(cos(camEulerAngles.z), sin(camEulerAngles.z), 1);
 
-        mov *= dir;
+        //mov *= dir;
 
         camPos += mov * console.getDeltaTime() * moveSpd;
 

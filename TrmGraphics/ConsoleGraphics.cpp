@@ -508,8 +508,13 @@ namespace TrmGraphics {
     void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
         //TODO: apply rotation and position
         translationMatrix mat;
-
-        mat = translationMatrix::getRotation(camRot) * translationMatrix::getTranslation(camPos);
+        UNREF_PARAM(camRot);
+        mat = translationMatrix::getRotation(vec3D(camRot.getEulerAngles().x, 0, 0))
+            * translationMatrix::getRotation(vec3D(0, camRot.getEulerAngles().y, 0))
+            * translationMatrix::getRotation(vec3D(0, 0, camRot.getEulerAngles().z))
+            * translationMatrix::getTranslation(camPos);
+        //mat = translationMatrix::getTranslation(camPos);
+        //mat = translationMatrix::getTranslation(camPos) * translationMatrix::getRotation(camRot);
 
         pos1 = mat * pos1;
         pos2 = mat * pos2;
@@ -534,8 +539,57 @@ namespace TrmGraphics {
         pos22d += center;
         pos32d += center;
 
-        //draw triangles
-        addTri(c, pos12d, pos22d, pos32d, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
+        //draw triangle
+
+        //get range of triangle
+        int minX = min3(pos12d.x, pos22d.x, pos32d.x);
+        int minY = min3(pos12d.y, pos22d.y, pos32d.y);
+        int maxX = max3(pos12d.x, pos22d.x, pos32d.x);
+        int maxY = max3(pos12d.y, pos22d.y, pos32d.y);
+
+        //clamp tri range to be inside valid area
+        clamp(minX, 0, m_columns-1);
+        clamp(minY, 0, m_rows-1);
+        clamp(maxX, 0, m_columns-1);
+        clamp(maxY, 0, m_rows-1);
+
+        //get 3d plane from
+
+        //run rasterization algorithm
+        for(int x = minX; x <= maxX; ++x) {
+            for(int y = minY; y <= maxY; ++y) {
+
+                bool fill = true;
+                fill &= edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
+                fill &= edgeFunc(pos22d.x, pos22d.y, pos32d.x, pos32d.y, x, y);
+                fill &= edgeFunc(pos32d.x, pos32d.y, pos12d.x, pos12d.y, x, y);
+                if(!fill){
+                    fill = true;
+                    fill &= !edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
+                    fill &= !edgeFunc(pos22d.x, pos22d.y, pos32d.x, pos32d.y, x, y);
+                    fill &= !edgeFunc(pos32d.x, pos32d.y, pos12d.x, pos12d.y, x, y);
+                }
+
+                if(fill) {
+
+                    //get z coordinate
+                    //get vector
+                    vec3D ray(x, y, -d);
+
+                    
+
+
+
+                    //pixel is part of the triangle!
+                    m_backBuffer[getIndex(y, x)].c = c;
+                    m_backBuffer[getIndex(y, x)].r = rFill;
+                    m_backBuffer[getIndex(y, x)].g = gFill;
+                    m_backBuffer[getIndex(y, x)].b = bFill;
+                }
+            }
+        }
+
+
     }
 
     //! print an ellipse to the back buffer
