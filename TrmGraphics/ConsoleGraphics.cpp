@@ -576,7 +576,11 @@ namespace TrmGraphics {
                     //get vector
                     vec3D ray(x, y, -d);
 
-                    
+                    //get plane normal and point
+                    //prod1: get .product of ray and planeNormal
+                    //prod2: get .product of ray and 0
+                    //prod3: prod1/prod2
+                    //intersect point should be 0 / ray * prod3
 
 
 
