@@ -309,16 +309,31 @@ namespace TrmGraphics {
 
     //! print at cursor position
     void ConsoleGraphics::print(char c, int r, int g, int b) {
-        char buf[2];
-        sprintf(buf, "%c", c);
-        print(buf, r, g, b);
+        printAt(c, vec2D(m_cursor_index + 1, 0), r, g, b);
+        //char buf[2];
+        //sprintf(buf, "%c", c);
+        //print(buf, r, g, b);
     }
 
     //! move cursor, then print at new cursor position
     void ConsoleGraphics::printAt(char c, vec2D pos, int r, int g, int b) {
-        char buf[2];
-        sprintf(buf, "%c", c);
-        printAt(buf, pos, r, g, b);
+        //add c to backbuffer at position pos
+        int index = getIndex(pos.y, pos.x);
+        if(index == -1)
+            return;
+
+        m_backBuffer[index].c = c;
+        m_backBuffer[index].r = r;
+        m_backBuffer[index].g = g;
+        m_backBuffer[index].b = b;
+
+        ++m_cursor_index;
+        if(m_cursor_index >= m_rows * m_columns)
+            m_cursor_index = 0;
+
+        //char buf[2];
+        //sprintf(buf, "%c", c);
+        //printAt(buf, pos, r, g, b);
     }
 
     // print a rectangle to the back buffers
@@ -656,7 +671,7 @@ namespace TrmGraphics {
             for(int c = 0; c < m_columns; ++c) {
                 cPixel &backPix = m_backBuffer[getIndex(r, c)];
                 if(backPix != m_frontBuffer[getIndex(r, c)]) {
-                    if(backPix.r != lastR || backPix.g != lastG || backPix.b != lastB) {
+                    if(backPix.c != 0 && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
                         lastR = backPix.r;
                         lastG = backPix.g;
                         lastB = backPix.b;

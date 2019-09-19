@@ -13,8 +13,8 @@ using TrmGraphics::quaternion;
 
 int main() {
 
-    const int width = 200;
-    const int height = 100;
+    const int width = 150;
+    const int height = 75;
     const bool faces = false;
     const float moveSpd = 10;
 
@@ -23,6 +23,7 @@ int main() {
     //camera position
     vec3D camPos(0, 0, 110);
     quaternion camRot(vec3D(0, 0, 0));
+    vec3D camEulerAngles(0, 0, 0);
 
     //point for a cube
     /*vec3D v1(0, 0,  2);
@@ -82,17 +83,17 @@ int main() {
         //camRot = quaternion(camRot.getEulerAngles() + vec3D(1, 0, 0) * console.getDeltaTime()*1);
         vec3D rot;
         vec3D mov;
-        if(console.keyPressed(VK_SPACE)) {
+        if(console.keyPressed(VK_CONTROL)) {
             mov += vec3D(0, -1, 0);
         }
         if(console.keyPressed(VK_SHIFT)) {
             mov += vec3D(0, 1, 0);
         }
         if(console.keyPressed('A')) {
-            mov += vec3D(-1, 0, 0);
+            mov += vec3D(1, 0, 0);
         }
         if(console.keyPressed('D')) {
-            mov += vec3D(1, 0, 0);
+            mov += vec3D(-1, 0, 0);
         }
         if(console.keyPressed('W')) {
             mov += vec3D(0, 0, -1);
@@ -117,7 +118,7 @@ int main() {
 
         camPos += mov * console.getDeltaTime() * moveSpd;
 
-        camRot = quaternion(camRot.getEulerAngles() + rot * console.getDeltaTime()*1);
+        camRot = quaternion(camEulerAngles += rot * console.getDeltaTime()*1);
 
         console.printAt("", vec2D(0,0));
         console << "camPos: (";
