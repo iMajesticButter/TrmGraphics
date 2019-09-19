@@ -1,4 +1,5 @@
-
+#ifndef TRMGRAPHICS_VEC3D_HEADER
+#define TRMGRAPHICS_VEC3D_HEADER
 namespace TrmGraphics {
 
     typedef class vec2D vec2D;
@@ -65,3 +66,4 @@ namespace TrmGraphics {
     };
 
 }
+#endif

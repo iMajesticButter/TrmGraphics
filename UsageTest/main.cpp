@@ -74,12 +74,10 @@ int main() {
 
     float fft[4096];
 
-    clock_t lastTime = clock();
     //update loop
     while(true) {
         //ups couter
-        double deltaTime = (double)(clock() - lastTime) / 1000;
-        lastTime = clock();
+        double deltaTime = console.getDeltaTime();
 
         float ups = 1/deltaTime;
         char buf[32];
@@ -164,29 +162,18 @@ int main() {
 
             }
         } else if(mode == 2) {
-
-            //const float radiusInner = height/6;
-            const float radiusInner = 5;
-            //const float scale = ((height/2) - radiusInner)/5;
-            const float scale = 15;
-            for(int i = 0, a = 0; a < 360; ++i, a += 4) {
+            for(int x = 0, i = 0; x < width; x += 4, ++i) {
 
                 //float size = pow(fft[i], 0.9)*5 + (i/90);
-                float size = fft[i] * 25;
+                float size = fft[i]*10;
                 //if(size < 1) {
                     //size = 1;
                 //}
+                vec2D p1 = vec2D(x-2, height);
+                vec2D p2 = vec2D(x, height-(size*height/2));
+                vec2D p3 = vec2D(x+2, height);
 
-                vec2D vec(sin((float)(a+180) * 0.0174533), cos((float)(a+180) * 0.0174533));
-                vec2D pos(width/2, height/2);
-
-                vec2D start = vec*radiusInner;
-                vec2D end = vec*((size*scale)+radiusInner);
-
-                start *= vec2D(2, 1);
-                end *= vec2D(2, 1);
-
-                console.addLine((char)254, pos+start, pos+end);
+                console.addTri((char)254, p1, p2, p3, 0, brightness, brightness);
 
             }
         }
@@ -244,11 +231,6 @@ int main() {
         //console.addRect('#', fft[0] * 100, fft[0] * 100, 0, 0);
         //console.printAt("#", 0, -1);
         console.draw();
-
-        //limit updates per second to 100
-        while(1/((double)(clock() - lastTime)/1000) > 100) {
-            Sleep(10);
-        }
 
     }
 

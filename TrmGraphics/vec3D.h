@@ -1,3 +1,6 @@
+#ifndef TRMGRAPHICS_VEC3D_HEADER
+#define TRMGRAPHICS_VEC3D_HEADER
+
 #include "preC.h"
 
 namespace TrmGraphics {
@@ -5,7 +8,7 @@ namespace TrmGraphics {
     typedef class vec2D vec2D;
 
     //! 3d vector containing x, y, and z
-    class __declspec(dllexport) vec3D {
+    class EXPORT vec3D {
     public:
 
         double x,y,z; //! > xyz coordnates
@@ -66,3 +69,4 @@ namespace TrmGraphics {
     };
 
 }
+#endif

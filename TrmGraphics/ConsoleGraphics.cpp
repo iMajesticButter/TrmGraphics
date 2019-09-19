@@ -12,6 +12,8 @@
 
 #include "vec2D.h"
 #include "vec3D.h"
+#include "quaternion.h"
+#include "translationMatrix.h"
 
 //windows stuff
 #if defined(PLATFORM_WINDOWS)
@@ -29,6 +31,7 @@ namespace TrmGraphics {
     struct cPixel {
         char c;
         unsigned int r, g, b;
+        float zAxis;
 
         bool operator==(cPixel& other) {
             return c == other.c && r == other.r && g == other.g && b == other.b;
@@ -287,6 +290,13 @@ namespace TrmGraphics {
             m_cursor_index = getIndex(pos.y , pos.x + i);
         }
 
+        if(str.length() == 0) {
+            m_cursor_index = getIndex(pos.y , pos.x);
+            if(m_cursor_index == -1) {
+                m_cursor_index = 0;
+            }
+        }
+
         //char buf[] = {0x1B, '[', 2, ';', 5, 'f', 0};
 
         //printf("\033[%d;%df", 3, 5);
@@ -394,6 +404,11 @@ namespace TrmGraphics {
         for(int i = 0; i <= dst; ++i) {
             float nVecX = round(vecX * i);
             float nVecY = round(vecY * i);
+
+            if(pos1.x + nVecX < 0 || pos1.x + nVecX >= m_columns || pos1.y + nVecY < 0 || pos1.y + nVecY >= m_rows) {
+                continue;
+            }
+
             int index = getIndex(pos1.y + nVecY, pos1.x + nVecX);
             //int index = getIndex(pos1.x + (vecX * dst), pos1.y + (vecY * dst));
 
@@ -472,6 +487,40 @@ namespace TrmGraphics {
 
     void ConsoleGraphics::addTri(char c, vec2D pos1, vec2D pos2, vec2D pos3, bool fill, int rBorder, int gBorder, int bBorder, int rFill, int gFill, int bFill) {
         addTri(c, pos1, pos2, pos3, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
+    }
+
+    //! print a triangle in 3d space to the backbuffer!
+    void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+        //TODO: apply rotation and position
+        translationMatrix mat;
+
+        mat = translationMatrix::getRotation(camRot) * translationMatrix::getTranslation(camPos);
+
+        pos1 = mat * pos1;
+        pos2 = mat * pos2;
+        pos3 = mat * pos3;
+
+        float d = 100;
+
+        //do perspective projection
+        vec2D pos12d = pos1*(d / pos1.z);
+        vec2D pos22d = pos2*(d / pos2.z);
+        vec2D pos32d = pos3*(d / pos3.z);
+
+        //stretch to match console text size
+        vec2D ctd(2, 1);
+        pos12d *= ctd;
+        pos22d *= ctd;
+        pos32d *= ctd;
+
+        //center on screen
+        vec2D center((float)m_columns/2, (float)m_rows/2);
+        pos12d += center;
+        pos22d += center;
+        pos32d += center;
+
+        //draw triangles
+        addTri(c, pos12d, pos22d, pos32d, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
     //! print an ellipse to the back buffer
@@ -566,6 +615,9 @@ namespace TrmGraphics {
       When draw is called, the back_buffer will be set to the background instead of empty.
     */
     void ConsoleGraphics::saveBackground() {
+        for(int i = 0; i < m_rows*m_columns; ++i) {
+            m_backBuffer[i].zAxis = 0;
+        }
         memcpy(m_background, m_backBuffer, sizeof(cPixel) * (m_rows * m_columns));
     }
 

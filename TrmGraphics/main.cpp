@@ -5,102 +5,139 @@
 #include <windows.h>
 #include "vec2D.h"
 #include "vec3D.h"
+#include "quaternion.h"
 
 using TrmGraphics::vec2D;
 using TrmGraphics::vec3D;
+using TrmGraphics::quaternion;
 
 int main() {
 
-    int width = 100;
-    int height = 50;
+    const int width = 200;
+    const int height = 100;
+    const bool faces = false;
+    const float moveSpd = 10;
 
     TrmGraphics::ConsoleGraphics console(width, height);
 
-    bool pressed = false;
-    int blue = 0;
+    //camera position
+    vec3D camPos(0, 0, 110);
+    quaternion camRot(vec3D(0, 0, 0));
 
-    char buf[32];
-    //sprintf(buf, "%c", (char)178);
+    //point for a cube
+    /*vec3D v1(0, 0,  2);
+    vec3D v2( 2, 0,  2);
+    vec3D v3( 2,  2,  2);
+    vec3D v4(0,  2,  2);
 
-    //set background'
-    for(int x = 0; x < width; ++x) {
-        for(int y = 0; y < height; ++y) {
-            console.printAt((char)178, vec2D(x, y), 255*((float)x / width), 0, 255*((float)y / height));
-        }
-    }
+    vec3D v5(0, 0, 0);
+    vec3D v6( 2, 0, 0);
+    vec3D v7( 2,  2, 0);
+    vec3D v8(0,  2, 0);*/
 
-    console.saveBackground();
+    vec3D v1(-1, -1,  1);
+    vec3D v2( 1, -1,  1);
+    vec3D v3( 1,  1,  1);
+    vec3D v4(-1,  1,  1);
 
-    float i = 0;
+    vec3D v5(-1, -1, -1);
+    vec3D v6( 1, -1, -1);
+    vec3D v7( 1,  1, -1);
+    vec3D v8(-1,  1, -1);
+
+    v1 *= 10;
+    v2 *= 10;
+    v3 *= 10;
+    v4 *= 10;
+
+    v5 *= 10;
+    v6 *= 10;
+    v7 *= 10;
+    v8 *= 10;
+
+    char c = (char)219;
+
     while(true) {
-        double sn = sin(i)/2;
 
-        int x = (int)(((double)width/2)+(sn * width));
-        int y = (int)(((double)height/2)+(sn * height));
+        console.addTri3D(c, v1, v2, v3, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v4, v3, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
 
-        //print lots of #'s
-        /*for(int i = 0; i < width; ++i) {
-            for(int j = 0; j < height; ++j) {
-                console.printAt("#", i, (height-1)-j, i*(255/width), j*(255/height), 0);
-            }
-        }
+        console.addTri3D(c, v2, v6, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v2, v3, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
 
-        console.printAt("test", x, y, 255-(int)(((float)x/(float)width)*255), (int)(((float)y/(float)height)*255), 0);*/
+        console.addTri3D(c, v1, v5, v8, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v4, v8, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
 
-        int red = 0;
-        if(console.keyPressed(VK_SPACE)) {
-            red = 255;
-        }
+        console.addTri3D(c, v5, v6, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v5, v8, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
 
-        console.addRect('#', vec2D(x-10, y-5), vec2D(x+10, y+5), red, 255, 0, 255, 0, blue);
-        console.addRect('#', vec2D(y-10, x-5), vec2D(y+10, x+5), red, 255, 0, 255, 0, blue);
+        console.addTri3D(c, v1, v2, v6, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v1, v5, v6, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
 
-        console.addLine('/', vec2D(10, 10), vec2D(30, sn*30), 255, 255, 255);
+        console.addTri3D(c, v4, v3, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
+        console.addTri3D(c, v4, v8, v7, camPos, camRot, 155, 155, 155, 255, 255, 255, faces);
 
-        //console.addTri((char)219, 10, 10, 15, 15, 5, 15, 255, 255, 255, 255, 0, 0);
-        console.addTri((char)219, vec2D(5, 15), vec2D((sn*width) + (width/2), (sn*height) + (height/2)), vec2D(80, 8), 0, 255, 0, 255, 0, 0);
-
-        vec2D vert1( 1, 30);
-        vec2D vert2(21, 25);
-        vec2D vert3(26, 40);
-        vec2D vert4( 6, 45);
-
-        console.addTri((char)219, vert1, vert2, vert3, 0, 0, 0, 255, 255, 255);
-        console.addTri((char)219, vert1, vert4, vert3, 0, 0, 0, 255, 255, 255);
-
-        console.addTri((char)219, vec2D(width, height), vec2D(width/2, height/2), vec2D(width, 0), false);
-
-        console.addEllipse('#', vec2D(sn*width + width/2, sn*height + height/2), vec2D(sn*20, (cos(i)/2)*10), 255, 0, 255, 255, 255, 0);
-
-        if(console.keyPressed('A')) {
-            if(!pressed) {
-                if(blue == 0) {
-                    blue = 255;
-                } else {
-                    blue = 0;
-                }
-            }
-            pressed = true;
-        } else {
-            pressed = false;
-        }
-
-        console.addLine('-', vec2D(0, 0), vec2D(width-1, 0));
-        console.addLine('-', vec2D(0, height-1), vec2D(width-1, height-1));
-        console.addLine('|', vec2D(0, 0), vec2D(0, height-1));
-        console.addLine('|', vec2D(width-1, 0), vec2D(width-1, height-1));
-
-        sprintf(buf, "deltaTime: %f", console.getDeltaTime());
-
-        console.printAt(buf, vec2D(0, height-1));
-
-        i += console.getDeltaTime()*0.25;
         console.draw();
+
+        //camRot = quaternion(camRot.getEulerAngles() + vec3D(1, 0, 0) * console.getDeltaTime()*1);
+        vec3D rot;
+        vec3D mov;
+        if(console.keyPressed(VK_SPACE)) {
+            mov += vec3D(0, -1, 0);
+        }
+        if(console.keyPressed(VK_SHIFT)) {
+            mov += vec3D(0, 1, 0);
+        }
+        if(console.keyPressed('A')) {
+            mov += vec3D(-1, 0, 0);
+        }
+        if(console.keyPressed('D')) {
+            mov += vec3D(1, 0, 0);
+        }
+        if(console.keyPressed('W')) {
+            mov += vec3D(0, 0, -1);
+        }
+        if(console.keyPressed('S')) {
+            mov += vec3D(0, 0, 1);
+        }
+        if(console.keyPressed(VK_UP)) {
+            rot += vec3D(1, 0, 0);
+        }
+        if(console.keyPressed(VK_DOWN)) {
+            rot += vec3D(-1, 0, 0);
+        }
+        if(console.keyPressed(VK_LEFT)) {
+            rot += vec3D(0, 1, 0);
+        }
+        if(console.keyPressed(VK_RIGHT)) {
+            rot += vec3D(0, -1, 0);
+        }
+
+
+
+        camPos += mov * console.getDeltaTime() * moveSpd;
+
+        camRot = quaternion(camRot.getEulerAngles() + rot * console.getDeltaTime()*1);
+
+        console.printAt("", vec2D(0,0));
+        console << "camPos: (";
+        console << camPos.x;
+        console << ", ";
+        console << camPos.y;
+        console << ", ";
+        console << camPos.z;
+        console << ")";
+
+        console.printAt("", vec2D(0,1));
+        console << "camRotEuler: (";
+        console << camRot.getEulerAngles().x;
+        console << ", ";
+        console << camRot.getEulerAngles().y;
+        console << ", ";
+        console << camRot.getEulerAngles().z;
+        console << ")";
+
     }
-
-    //console.printAt("test", 5, 7, 25, 255, 96);
-
-    //console.draw();
 
     system("pause");
 

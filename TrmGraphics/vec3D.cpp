@@ -53,7 +53,7 @@ namespace TrmGraphics {
         return vec3D(x - other.x, y - other.y, z - other.z);
     }
     vec3D vec3D::operator-(float val) const {
-        return vec3D(x + val, y + val, z + val);
+        return vec3D(x - val, y - val, z - val);
     }
 
     vec3D vec3D::operator*(const vec2D& other) const {
@@ -63,7 +63,7 @@ namespace TrmGraphics {
         return vec3D(x * other.x, y * other.y, z * other.z);
     }
     vec3D vec3D::operator*(float val) const {
-        return vec3D(x + val, y + val, z + val);
+        return vec3D(x * val, y * val, z * val);
     }
 
     vec3D vec3D::operator/(const vec2D& other) const {
@@ -73,7 +73,7 @@ namespace TrmGraphics {
         return vec3D(x / other.x, y / other.y, z / other.z);
     }
     vec3D vec3D::operator/(float val) const {
-        return vec3D(x + val, y + val, z + val);
+        return vec3D(x / val, y / val, z / val);
     }
 
     //----------------------

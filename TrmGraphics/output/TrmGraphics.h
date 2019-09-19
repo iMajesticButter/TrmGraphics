@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vec2D.h>
 #include <vec3D.h>
+#include <quaternion.h>
 
 namespace TrmGraphics {
 
