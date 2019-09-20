@@ -121,24 +121,24 @@ int main() {
         //camRot = quaternion(camRot.getEulerAngles() + vec3D(1, 0, 0) * console.getDeltaTime()*1);
         vec3D rot;
         vec3D mov;
-        if(console.keyPressed('Q')) {
-            mov += vec3D(0, 1, 0);
+        if(console.keyPressed(VK_SPACE)) {
+            mov += camRot.left();
         }
-        if(console.keyPressed('E')) {
-            mov += vec3D(0, -1, 0);
+        if(console.keyPressed('C')) {
+            mov -= camRot.left();
         }
         if(console.keyPressed('A')) {
-            mov += vec3D(cos(camEulerAngles.y), 0, sin(camEulerAngles.y));
+            mov += camRot.up();
         }
         if(console.keyPressed('D')) {
-            mov -= vec3D(cos(camEulerAngles.y), 0, sin(camEulerAngles.y));
+            mov -= camRot.up();
         }
         if(console.keyPressed('W')) {
-            mov += vec3D(cos(camEulerAngles.y - 1.570796325), 0, sin(camEulerAngles.y - 1.570796325));
+            mov += camRot.forward();
             //mov += vec3D(0, 0, -1);
         }
         if(console.keyPressed('S')) {
-            mov -= vec3D(cos(camEulerAngles.y - 1.570796325), 0, sin(camEulerAngles.y - 1.570796325));
+            mov -= camRot.forward();
             //mov += vec3D(0, 0, 1);
         }
         if(console.keyPressed(VK_UP)) {
@@ -152,6 +152,12 @@ int main() {
         }
         if(console.keyPressed(VK_RIGHT)) {
             rot += vec3D(0, -1, 0);
+        }
+        if(console.keyPressed('Q')) {
+            rot += vec3D(0, 0, 1);
+        }
+        if(console.keyPressed('E')) {
+            rot += vec3D(0, 0, -1);
         }
 
         if(console.keyPressed('I')) {

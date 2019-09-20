@@ -301,7 +301,7 @@ namespace TrmGraphics {
           \param light the point light to be added
           \sa setSunLamp(), setAmbientLight(), addTri3D(), getPointLight(), removePointLight()
         */
-        void addPointLight(pointLight light);
+        //void addPointLight(pointLight light);
 
         //! get a point light by index
         /*!
@@ -311,7 +311,7 @@ namespace TrmGraphics {
           \returns a pointer to the point light at index *index*
           \sa addPointLight(), removePointLight()
         */
-        pointLight* getPointLight(unsigned index);
+        //pointLight* getPointLight(unsigned index);
 
         //! remove a point light by index
         /*!
@@ -320,7 +320,7 @@ namespace TrmGraphics {
           \param index the index to remove the point light from
           \sa addPointLight(), getPointLight()
         */
-        void removePointLight(int index);
+        //void removePointLight(int index);
 
         //! saved the current back buffer as the background
         /*!
@@ -371,7 +371,7 @@ namespace TrmGraphics {
         cPixel* m_frontBuffer;
         cPixel* m_background;
 
-        std::vector<pointLight> m_lights;
+        //std::vector<pointLight> m_lights;
         float m_ambientLight;
         vec3D m_sunVec;
         float m_sunStrength;

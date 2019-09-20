@@ -528,6 +528,12 @@ namespace TrmGraphics {
 
         float lightLevel = 0;
 
+
+        //----------------------------lighting-------------------------------
+
+        //--------------sun light--------------
+
+
         //get plane normal and point
         vec3D pv1 = pos2 - pos1;
         vec3D pv2 = pos2 - pos3;
@@ -543,18 +549,16 @@ namespace TrmGraphics {
         }
 
 
-        //----------------------------lighting-------------------------------
-
-        //--------------sun light--------------
-
         //---get angle from normal to light---
         vec3D sunVec(m_sunVec.x, m_sunVec.y, m_sunVec.z);
 
         //get dot product
-        float sunDot = (sunVec.x * planeNormal.x) + (sunVec.y * planeNormal.y) + (sunVec.z * planeNormal.z);
+        //float sunDot = (sunVec.x * planeNormal.x) + (sunVec.y * planeNormal.y) + (sunVec.z * planeNormal.z);
 
         //angle
-        float sunAngle = sunDot / (sunVec.GetMagnitude() * planeNormal.GetMagnitude());
+        //float sunAngle = sunDot / (sunVec.GetMagnitude() * planeNormal.GetMagnitude());
+
+        float sunAngle = getVecAngle(sunVec, planeNormal);
 
         //increment brightness level
         float sunBrt = ((sunAngle * 57.2958)/90);
@@ -788,7 +792,7 @@ namespace TrmGraphics {
     }
 
     //! add a new point light
-    void ConsoleGraphics::addPointLight(pointLight light) {
+    /*void ConsoleGraphics::addPointLight(pointLight light) {
         m_lights.push_back(light);
     }
 
@@ -802,7 +806,7 @@ namespace TrmGraphics {
     //! remove a point light by index
     void ConsoleGraphics::removePointLight(int index) {
         m_lights.erase(m_lights.begin() + index);
-    }
+    }*/
 
     //! saved the current back buffer as the background
     void ConsoleGraphics::saveBackground() {
