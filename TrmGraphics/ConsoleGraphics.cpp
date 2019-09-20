@@ -31,7 +31,7 @@ namespace TrmGraphics {
     struct cPixel {
         char c;
         unsigned int r, g, b;
-        float zAxis;
+        float zAxis = 1;
 
         bool operator==(cPixel& other) {
             return c == other.c && r == other.r && g == other.g && b == other.b;
@@ -506,9 +506,16 @@ namespace TrmGraphics {
 
     //! print a triangle in 3d space to the backbuffer!
     void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
-        //TODO: apply rotation and position
+        bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
+        if(!fill)
+            drawBorders = true;
+        //apply rotation and position
         translationMatrix mat;
         UNREF_PARAM(camRot);
+        UNREF_PARAM(rBorder);
+        UNREF_PARAM(gBorder);
+        UNREF_PARAM(bBorder);
+        UNREF_PARAM(fill);
         mat = translationMatrix::getRotation(vec3D(camRot.getEulerAngles().x, 0, 0))
             * translationMatrix::getRotation(vec3D(0, camRot.getEulerAngles().y, 0))
             * translationMatrix::getRotation(vec3D(0, 0, camRot.getEulerAngles().z))
@@ -574,25 +581,57 @@ namespace TrmGraphics {
 
                     //get z coordinate
                     //get vector
-                    vec3D ray(x, y, -d);
+                    vec3D ray((x - center.x) / ctd.x, (y - center.y) - ctd.y, d);
+                    vec3D diff(pos1.x, pos1.y, pos1.z);
 
                     //get plane normal and point
+                    vec3D pv1 = pos2 - pos1;
+                    vec3D pv2 = pos2 - pos3;
+
+                    vec3D planeNormal((pv1.y * pv2.z) - (pv1.z * pv2.y),
+                                      (pv1.z * pv2.x) - (pv1.x * pv2.z),
+                                      (pv1.x * pv2.y) - (pv1.y * pv2.x));
+
                     //prod1: get .product of ray and planeNormal
-                    //prod2: get .product of ray and 0
+                    float prod1 = (diff.x * planeNormal.x) + (diff.y * planeNormal.y) + (diff.z * planeNormal.z);
+                    //prod2: get .product of ray and diff
+                    float prod2 = (ray.x * planeNormal.x) + (ray.y * planeNormal.y) + (ray.z * planeNormal.z);
                     //prod3: prod1/prod2
-                    //intersect point should be 0 / ray * prod3
+                    float prod3 = prod1/prod2;
+                    //intersect point should be 0 - ray * prod3
+                    vec3D pos3D = vec3D(0,0,0) - ray * prod3;
 
+                    /*if(pos3D.z < m_backBuffer[getIndex(y, x)].zAxis) {
+                        //try inverting normals
+                        prod1 = (diff.x * -planeNormal.x) + (diff.y * -planeNormal.y) + (diff.z * -planeNormal.z);
+                        //prod2: get .product of ray and diff
+                        prod2 = (ray.x * -planeNormal.x) + (ray.y * -planeNormal.y) + (ray.z * -planeNormal.z);
+                        //prod3: prod1/prod2
+                        prod3 = prod1/prod2;
+                        //intersect point should be 0 - ray * prod3
+                        pos3D = vec3D(0,0,0) - ray * prod3;
+                    }*/
 
+                    int index = getIndex(y, x);
 
-                    //pixel is part of the triangle!
-                    m_backBuffer[getIndex(y, x)].c = c;
-                    m_backBuffer[getIndex(y, x)].r = rFill;
-                    m_backBuffer[getIndex(y, x)].g = gFill;
-                    m_backBuffer[getIndex(y, x)].b = bFill;
+                    if(m_backBuffer[index].zAxis == 1 || pos3D.z > m_backBuffer[index].zAxis) {
+                        //pixel is part of the triangle!
+                        m_backBuffer[index].c = c;
+                        m_backBuffer[index].r = rFill;
+                        m_backBuffer[index].g = gFill;
+                        m_backBuffer[index].b = bFill;
+                        m_backBuffer[index].zAxis = pos3D.z;
+                    }
                 }
             }
         }
 
+        //draw borders
+        if(drawBorders) {
+            //addLine(c, vec2D((int)pos12d.x, (int)pos12d.y), vec2D((int)pos22d.x, (int)pos22d.y), rBorder, gBorder, bBorder);
+            //addLine(c, vec2D((int)pos22d.x, (int)pos22d.y), vec2D((int)pos32d.x, (int)pos32d.y), rBorder, gBorder, bBorder);
+            //addLine(c, vec2D((int)pos32d.x, (int)pos32d.y), vec2D((int)pos12d.x, (int)pos12d.y), rBorder, gBorder, bBorder);
+        }
 
     }
 
@@ -689,7 +728,7 @@ namespace TrmGraphics {
     */
     void ConsoleGraphics::saveBackground() {
         for(int i = 0; i < m_rows*m_columns; ++i) {
-            m_backBuffer[i].zAxis = 0;
+            m_backBuffer[i].zAxis = 1;
         }
         memcpy(m_background, m_backBuffer, sizeof(cPixel) * (m_rows * m_columns));
     }
