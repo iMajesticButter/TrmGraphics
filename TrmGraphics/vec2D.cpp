@@ -17,10 +17,11 @@ namespace TrmGraphics {
 
     }
 
-    void vec2D::normalize() {
+    vec2D& vec2D::normalize() {
         float dst = sqrt(pow(x, 2) + pow(y, 2));
         x /= dst;
         y /= dst;
+        return *this;
     }
 
     float vec2D::GetMagnitude(){

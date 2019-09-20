@@ -19,7 +19,7 @@ namespace TrmGraphics {
         vec2D(const double _x, const double _y);
 
         //! normalize the vector
-        void normalize();
+        vec2D& normalize();
 
         //! get the vectors magnitude
         float GetMagnitude();

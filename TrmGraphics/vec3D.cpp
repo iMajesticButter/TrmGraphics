@@ -17,11 +17,12 @@ namespace TrmGraphics {
 
     }
 
-    void vec3D::normalize() {
+    vec3D& vec3D::normalize() {
         float dst = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
         x /= dst;
         y /= dst;
         z /= dst;
+        return *this;
     }
 
     float vec3D::GetMagnitude(){

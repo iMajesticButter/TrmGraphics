@@ -4,6 +4,10 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
+
+#include "vec2D.h"
+#include "vec3D.h"
 
 #include "preC.h"
 
@@ -14,9 +18,14 @@ namespace TrmGraphics {
     //typedef class string string;
 
     typedef struct cPixel cPixel;
-    typedef class vec2D vec2D;
-    typedef class vec3D vec3D;
     typedef class quaternion quaternion;
+
+    struct pointLight {
+        vec3D pos;
+        float intencity;
+        float radius;
+        float falloff;
+    };
 
     //! Graphical Console Manager
     /*!
@@ -218,6 +227,7 @@ namespace TrmGraphics {
           \param pos1 The position of vertex 1
           \param pos2 The position of vertex 2
           \param pos3 The position of vertex 3
+          \param norm The triangles normal vector (if *(20,20,20)*, one will be generated), default value: *(20,20,20)* (generated)
           \param camPos The position of the camera
           \param camRot The rotation of the camera
           \param rFill the red color value of the triangle fill between 0 and 255. defalts to *255*
@@ -229,7 +239,7 @@ namespace TrmGraphics {
           \param fill should the triangle be filled
           \sa draw()
         */
-        void addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
+        void addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm = vec3D(20, 20, 20), int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
 
         //! print an ellipse to the back buffer
         /*!
@@ -265,6 +275,52 @@ namespace TrmGraphics {
         */
         void addEllipse(char c, vec2D pos, vec2D size, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
 
+        //! set the ambient light level
+        /*!
+          set the ambient light level\n
+          note: this only applies to 3D triangles
+          \param level the new ambient light level
+          \sa setSunLamp(), addPointLight(), addTri3D()
+        */
+        void setAmbientLight(float level);
+
+        //! set the sun lamp direction and brightness
+        /*!
+          set the sun lamp direction and brightness\n
+          note: this only applies to 3D triangles
+          \param dir the direction of the sun lamp
+          \param level the new sun lamp brightness
+          \sa setAmbientLight(), addPointLight(), addTri3D()
+        */
+        void setSunLamp(vec3D dir, float level);
+
+        //! add a new point light
+        /*!
+          add a new point light\n
+          note: this only applies to 3D triangles
+          \param light the point light to be added
+          \sa setSunLamp(), setAmbientLight(), addTri3D(), getPointLight(), removePointLight()
+        */
+        void addPointLight(pointLight light);
+
+        //! get a point light by index
+        /*!
+          get a point light by index\n
+          note: this only applies to 3D triangles
+          \param index the index to get the point light from
+          \returns a pointer to the point light at index *index*
+          \sa addPointLight(), removePointLight()
+        */
+        pointLight* getPointLight(unsigned index);
+
+        //! remove a point light by index
+        /*!
+          remove a point light by index\n
+          note: this only applies to 3D triangles
+          \param index the index to remove the point light from
+          \sa addPointLight(), getPointLight()
+        */
+        void removePointLight(int index);
 
         //! saved the current back buffer as the background
         /*!
@@ -314,6 +370,11 @@ namespace TrmGraphics {
         cPixel* m_backBuffer;
         cPixel* m_frontBuffer;
         cPixel* m_background;
+
+        std::vector<pointLight> m_lights;
+        float m_ambientLight;
+        vec3D m_sunVec;
+        float m_sunStrength;
 
         int m_rows;
         int m_columns;

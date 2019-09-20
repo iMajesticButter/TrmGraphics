@@ -31,7 +31,7 @@ namespace TrmGraphics {
     struct cPixel {
         char c;
         unsigned int r, g, b;
-        float zAxis = 1;
+        double zAxis = 1;
 
         bool operator==(cPixel& other) {
             return c == other.c && r == other.r && g == other.g && b == other.b;
@@ -78,6 +78,12 @@ namespace TrmGraphics {
         m_columns = columns;
 
         m_cursor_index = 0;
+
+        //lighting stuff
+        m_ambientLight = 0;
+
+        m_sunVec = vec3D(-0.5, -0.5, 0);
+        m_sunStrength = 1;
 
 //enable ansi escape codes on windows
     #if defined(PLATFORM_WINDOWS)
@@ -505,17 +511,57 @@ namespace TrmGraphics {
     }
 
     //! print a triangle in 3d space to the backbuffer!
-    void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+    void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
         bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
         if(!fill)
             drawBorders = true;
+
+        float lightLevel = 0;
+
+
+        //----------------------------lighting-------------------------------
+
+        //--------------sun light--------------
+
+        //get plane normal and point
+        vec3D pv1 = pos2 - pos1;
+        vec3D pv2 = pos2 - pos3;
+
+        vec3D planeNormal;
+
+        if(norm.x == 20 && norm.y == 20 && norm.z == 20) {
+            planeNormal = vec3D((pv1.y * pv2.z) - (pv1.z * pv2.y),
+                                (pv1.z * pv2.x) - (pv1.x * pv2.z),
+                                (pv1.x * pv2.y) - (pv1.y * pv2.x));
+        } else {
+            planeNormal = norm;
+        }
+
+        //---get angle from normal to light---
+        vec3D sunVec(m_sunVec.x, m_sunVec.y, m_sunVec.z);
+
+        //get dot product
+        float sunDot = (sunVec.x * planeNormal.x) + (sunVec.y * planeNormal.y) + (sunVec.z * planeNormal.z);
+
+        //angle
+        float angle = sunDot / (sunVec.GetMagnitude() * planeNormal.GetMagnitude());
+
+        //increment brightness level
+        float sunBrt = ((angle * 57.2958)/90);
+        sunBrt = sunBrt > 0 ? sunBrt : 0;
+        sunBrt = sunBrt < 1 ? sunBrt : 1;
+        sunBrt *= m_sunStrength;
+        lightLevel += sunBrt;
+
+        //ambient light
+        lightLevel += m_ambientLight;
+        if(lightLevel > 1)
+        lightLevel = 1;
+
+
         //apply rotation and position
         translationMatrix mat;
-        UNREF_PARAM(camRot);
-        UNREF_PARAM(rBorder);
-        UNREF_PARAM(gBorder);
-        UNREF_PARAM(bBorder);
-        UNREF_PARAM(fill);
+
         mat = translationMatrix::getRotation(vec3D(camRot.getEulerAngles().x, 0, 0))
             * translationMatrix::getRotation(vec3D(0, camRot.getEulerAngles().y, 0))
             * translationMatrix::getRotation(vec3D(0, 0, camRot.getEulerAngles().z))
@@ -562,6 +608,14 @@ namespace TrmGraphics {
 
         //get 3d plane from
 
+        //get plane normal and point
+        pv1 = pos2 - pos1;
+        pv2 = pos2 - pos3;
+
+        planeNormal = vec3D((pv1.y * pv2.z) - (pv1.z * pv2.y),
+                            (pv1.z * pv2.x) - (pv1.x * pv2.z),
+                            (pv1.x * pv2.y) - (pv1.y * pv2.x));
+
         //run rasterization algorithm
         for(int x = minX; x <= maxX; ++x) {
             for(int y = minY; y <= maxY; ++y) {
@@ -584,20 +638,12 @@ namespace TrmGraphics {
                     vec3D ray((x - center.x) / ctd.x, (y - center.y) - ctd.y, d);
                     vec3D diff(pos1.x, pos1.y, pos1.z);
 
-                    //get plane normal and point
-                    vec3D pv1 = pos2 - pos1;
-                    vec3D pv2 = pos2 - pos3;
-
-                    vec3D planeNormal((pv1.y * pv2.z) - (pv1.z * pv2.y),
-                                      (pv1.z * pv2.x) - (pv1.x * pv2.z),
-                                      (pv1.x * pv2.y) - (pv1.y * pv2.x));
-
                     //prod1: get .product of ray and planeNormal
-                    float prod1 = (diff.x * planeNormal.x) + (diff.y * planeNormal.y) + (diff.z * planeNormal.z);
+                    double prod1 = (diff.x * planeNormal.x) + (diff.y * planeNormal.y) + (diff.z * planeNormal.z);
                     //prod2: get .product of ray and diff
-                    float prod2 = (ray.x * planeNormal.x) + (ray.y * planeNormal.y) + (ray.z * planeNormal.z);
+                    double prod2 = (ray.x * planeNormal.x) + (ray.y * planeNormal.y) + (ray.z * planeNormal.z);
                     //prod3: prod1/prod2
-                    float prod3 = prod1/prod2;
+                    double prod3 = prod1/prod2;
                     //intersect point should be 0 - ray * prod3
                     vec3D pos3D = vec3D(0,0,0) - ray * prod3;
 
@@ -617,9 +663,9 @@ namespace TrmGraphics {
                     if(m_backBuffer[index].zAxis == 1 || pos3D.z > m_backBuffer[index].zAxis) {
                         //pixel is part of the triangle!
                         m_backBuffer[index].c = c;
-                        m_backBuffer[index].r = rFill;
-                        m_backBuffer[index].g = gFill;
-                        m_backBuffer[index].b = bFill;
+                        m_backBuffer[index].r = rFill * lightLevel;
+                        m_backBuffer[index].g = gFill * lightLevel;
+                        m_backBuffer[index].b = bFill * lightLevel;
                         m_backBuffer[index].zAxis = pos3D.z;
                     }
                 }
@@ -628,9 +674,9 @@ namespace TrmGraphics {
 
         //draw borders
         if(drawBorders) {
-            //addLine(c, vec2D((int)pos12d.x, (int)pos12d.y), vec2D((int)pos22d.x, (int)pos22d.y), rBorder, gBorder, bBorder);
-            //addLine(c, vec2D((int)pos22d.x, (int)pos22d.y), vec2D((int)pos32d.x, (int)pos32d.y), rBorder, gBorder, bBorder);
-            //addLine(c, vec2D((int)pos32d.x, (int)pos32d.y), vec2D((int)pos12d.x, (int)pos12d.y), rBorder, gBorder, bBorder);
+            addLine(c, vec2D((int)pos12d.x, (int)pos12d.y), vec2D((int)pos22d.x, (int)pos22d.y), rBorder, gBorder, bBorder);
+            addLine(c, vec2D((int)pos22d.x, (int)pos22d.y), vec2D((int)pos32d.x, (int)pos32d.y), rBorder, gBorder, bBorder);
+            addLine(c, vec2D((int)pos32d.x, (int)pos32d.y), vec2D((int)pos12d.x, (int)pos12d.y), rBorder, gBorder, bBorder);
         }
 
     }
@@ -722,10 +768,35 @@ namespace TrmGraphics {
         addEllipse(c, pos, size, rFill, gFill, bFill, rBorder, gBorder, bBorder, fill);
     }
 
+    //! set the ambient light level
+    void ConsoleGraphics::setAmbientLight(float level) {
+        m_ambientLight = level;
+    }
+
+    //! set the sun lamp direction and brightness
+    void ConsoleGraphics::setSunLamp(vec3D dir, float level) {
+        m_sunVec = dir.normalize();
+        m_sunStrength = level;
+    }
+
+    //! add a new point light
+    void ConsoleGraphics::addPointLight(pointLight light) {
+        m_lights.push_back(light);
+    }
+
+    //! get a point light by index
+    pointLight* ConsoleGraphics::getPointLight(unsigned index) {
+        if(index < m_lights.size())
+            return &m_lights[index];
+        return nullptr;
+    }
+
+    //! remove a point light by index
+    void ConsoleGraphics::removePointLight(int index) {
+        m_lights.erase(m_lights.begin() + index);
+    }
+
     //! saved the current back buffer as the background
-    /*!
-      When draw is called, the back_buffer will be set to the background instead of empty.
-    */
     void ConsoleGraphics::saveBackground() {
         for(int i = 0; i < m_rows*m_columns; ++i) {
             m_backBuffer[i].zAxis = 1;
