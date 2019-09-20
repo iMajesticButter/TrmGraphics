@@ -17,6 +17,9 @@ namespace TrmGraphics {
         quaternion(const vec3D euler);
 
         vec3D getEulerAngles();
+        vec3D forward();
+        vec3D up();
+        vec3D left();
 
         void normalize();
 

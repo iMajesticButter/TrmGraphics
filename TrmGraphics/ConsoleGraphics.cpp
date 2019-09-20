@@ -46,22 +46,29 @@ namespace TrmGraphics {
     //----------LOCAL FUNCTIONS-----------
 
     //edge function for triangle rasterizer
-    bool edgeFunc(const float x1, const float y1, const float x2, const float y2, const float pX, const float pY) {
+    bool edgeFunc(const double x1, const double y1, const double x2, const double y2, const double pX, const double pY) {
         return ((pX - x1) * (y2 - y1) - (pY - y1) * (x2 - x1) >= 0);
     }
 
     //basic min max functions that take 3 arguments
-    int min3(const int a, const int b, const int c) {
+    double min3(const double a, const double b, const double c) {
         return std::min(a, b) < std::min(b, c) ? std::min(a, b) : std::min(b, c);
     }
-    int max3(const int a, const int b, const int c) {
+    double max3(const double a, const double b, const double c) {
         return std::max(a, b) > std::max(b, c) ? std::max(a, b) : std::max(b, c);
     }
 
     //basic clamp function
-    void clamp(int& i, const int min, const int max) {
+    void clamp(double& i, const double min, const double max) {
         i = i >= min ? i : min;
         i = i <= max ? i : max;
+    }
+
+    double getVecAngle(vec3D v1, vec3D v2) {
+        //get dot product
+        double dot = (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+        //angle
+        return dot / (v1.GetMagnitude() * v2.GetMagnitude());
     }
 
     //----------PUBLIC FUNCTIONS----------
@@ -460,10 +467,10 @@ namespace TrmGraphics {
 
         if(fill) {
             //get range of triangle
-            int minX = min3(pos1.x, pos2.x, pos3.x);
-            int minY = min3(pos1.y, pos2.y, pos3.y);
-            int maxX = max3(pos1.x, pos2.x, pos3.x);
-            int maxY = max3(pos1.y, pos2.y, pos3.y);
+            double minX = min3(pos1.x, pos2.x, pos3.x);
+            double minY = min3(pos1.y, pos2.y, pos3.y);
+            double maxX = max3(pos1.x, pos2.x, pos3.x);
+            double maxY = max3(pos1.y, pos2.y, pos3.y);
 
             //clamp tri range to be inside valid area
             clamp(minX, 0, m_columns-1);
@@ -472,8 +479,8 @@ namespace TrmGraphics {
             clamp(maxY, 0, m_rows-1);
 
             //run rasterization algorithm
-            for(int x = minX; x <= maxX; ++x) {
-                for(int y = minY; y <= maxY; ++y) {
+            for(int x = std::round(minX); x <= std::round(maxX); ++x) {
+                for(int y = std::round(minY); y <= std::round(maxY); ++y) {
 
                     bool fill = true;
                     fill &= edgeFunc(pos1.x, pos1.y, pos2.x, pos2.y, x, y);
@@ -512,16 +519,14 @@ namespace TrmGraphics {
 
     //! print a triangle in 3d space to the backbuffer!
     void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+        float d = 100; //distance from camera to projection plane
+
+
         bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
         if(!fill)
             drawBorders = true;
 
         float lightLevel = 0;
-
-
-        //----------------------------lighting-------------------------------
-
-        //--------------sun light--------------
 
         //get plane normal and point
         vec3D pv1 = pos2 - pos1;
@@ -537,6 +542,11 @@ namespace TrmGraphics {
             planeNormal = norm;
         }
 
+
+        //----------------------------lighting-------------------------------
+
+        //--------------sun light--------------
+
         //---get angle from normal to light---
         vec3D sunVec(m_sunVec.x, m_sunVec.y, m_sunVec.z);
 
@@ -544,10 +554,11 @@ namespace TrmGraphics {
         float sunDot = (sunVec.x * planeNormal.x) + (sunVec.y * planeNormal.y) + (sunVec.z * planeNormal.z);
 
         //angle
-        float angle = sunDot / (sunVec.GetMagnitude() * planeNormal.GetMagnitude());
+        float sunAngle = sunDot / (sunVec.GetMagnitude() * planeNormal.GetMagnitude());
 
         //increment brightness level
-        float sunBrt = ((angle * 57.2958)/90);
+        float sunBrt = ((sunAngle * 57.2958)/90);
+        //float sunBrt = 1 - ((camAngle1 * 57.2958)/45);
         sunBrt = sunBrt > 0 ? sunBrt : 0;
         sunBrt = sunBrt < 1 ? sunBrt : 1;
         sunBrt *= m_sunStrength;
@@ -573,8 +584,6 @@ namespace TrmGraphics {
         pos2 = mat * pos2;
         pos3 = mat * pos3;
 
-        float d = 100;
-
         //do perspective projection
         vec2D pos12d = pos1*(d / pos1.z);
         vec2D pos22d = pos2*(d / pos2.z);
@@ -595,18 +604,16 @@ namespace TrmGraphics {
         //draw triangle
 
         //get range of triangle
-        int minX = min3(pos12d.x, pos22d.x, pos32d.x);
-        int minY = min3(pos12d.y, pos22d.y, pos32d.y);
-        int maxX = max3(pos12d.x, pos22d.x, pos32d.x);
-        int maxY = max3(pos12d.y, pos22d.y, pos32d.y);
+        double minX = min3(pos12d.x, pos22d.x, pos32d.x);
+        double minY = min3(pos12d.y, pos22d.y, pos32d.y);
+        double maxX = max3(pos12d.x, pos22d.x, pos32d.x);
+        double maxY = max3(pos12d.y, pos22d.y, pos32d.y);
 
         //clamp tri range to be inside valid area
         clamp(minX, 0, m_columns-1);
         clamp(minY, 0, m_rows-1);
         clamp(maxX, 0, m_columns-1);
         clamp(maxY, 0, m_rows-1);
-
-        //get 3d plane from
 
         //get plane normal and point
         pv1 = pos2 - pos1;
@@ -617,8 +624,8 @@ namespace TrmGraphics {
                             (pv1.x * pv2.y) - (pv1.y * pv2.x));
 
         //run rasterization algorithm
-        for(int x = minX; x <= maxX; ++x) {
-            for(int y = minY; y <= maxY; ++y) {
+        for(int x = std::round(minX); x <= std::round(maxX); ++x) {
+            for(int y = std::round(minY); y <= std::round(maxY); ++y) {
 
                 bool fill = true;
                 fill &= edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
@@ -635,7 +642,8 @@ namespace TrmGraphics {
 
                     //get z coordinate
                     //get vector
-                    vec3D ray((x - center.x) / ctd.x, (y - center.y) - ctd.y, d);
+                    vec3D ray(((double)x - center.x) / ctd.x, ((double)y - center.y) / ctd.y, d);
+                    //vec3D ray(((double)x - center.x), ((double)y - center.y), d);
                     vec3D diff(pos1.x, pos1.y, pos1.z);
 
                     //prod1: get .product of ray and planeNormal
@@ -701,10 +709,10 @@ namespace TrmGraphics {
             size.y = abs(size.y);
 
             //get range of ellipse
-            int minX = pos.x - size.x;
-            int minY = pos.y - size.y;
-            int maxX = pos.x + size.x;
-            int maxY = pos.y + size.y;
+            double minX = pos.x - size.x;
+            double minY = pos.y - size.y;
+            double maxX = pos.x + size.x;
+            double maxY = pos.y + size.y;
 
             //clamp ellipse range to be inside valid area
             clamp(minX, 0, m_columns-1);
@@ -713,8 +721,8 @@ namespace TrmGraphics {
             clamp(maxY, 0, m_rows-1);
 
             //fill in ellispse
-            for(int x = minX; x <= maxX; ++x) {
-                for(int y = minY; y <= maxY; ++y) {
+            for(int x = std::round(minX); x <= std::round(maxX); ++x) {
+                for(int y = std::round(minY); y <= std::round(maxY); ++y) {
 
                     int xrel = pos.x - x;
                     int yrel = pos.y - y;

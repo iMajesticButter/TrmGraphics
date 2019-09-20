@@ -13,8 +13,8 @@ using TrmGraphics::quaternion;
 
 int main() {
 
-    const int width = 300;
-    const int height = 150;
+    const int width = 100;
+    const int height = 50;
     const bool faces = true;
     const int edges = -1;
     const float moveSpd = 10;
@@ -76,7 +76,7 @@ int main() {
 
         console.setAmbientLight(0.15);
         quaternion sunLampQ(sunLampAngles);
-        console.setSunLamp(vec3D(sunLampQ.x, sunLampQ.y, sunLampQ.z), 1);
+        console.setSunLamp(sunLampQ.forward(), 1);
 
         /*console.addTri3D(c, v1, v3, v4, camPos, camRot, 255, 0, 0, edges, edges, edges, faces);
         console.addTri3D(c, v1, v2, v3, camPos, camRot, 255, 0, 0, edges, edges, edges, faces);
