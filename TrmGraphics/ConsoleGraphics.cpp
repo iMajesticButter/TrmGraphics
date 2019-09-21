@@ -31,7 +31,7 @@ namespace TrmGraphics {
     struct cPixel {
         char c;
         unsigned int r, g, b;
-        double zAxis = -999;
+        double zAxis = 999;
 
         bool operator==(cPixel& other) {
             return c == other.c && r == other.r && g == other.g && b == other.b;
@@ -301,7 +301,7 @@ namespace TrmGraphics {
             m_backBuffer[getIndex(pos.y, pos.x+i)].r = r;
             m_backBuffer[getIndex(pos.y, pos.x+i)].g = g;
             m_backBuffer[getIndex(pos.y, pos.x+i)].b = b;
-            m_backBuffer[getIndex(pos.y, pos.x+i)].zAxis = -1000;
+            m_backBuffer[getIndex(pos.y, pos.x+i)].zAxis = 1000;
             m_cursor_index = getIndex(pos.y , pos.x + i);
         }
 
@@ -341,7 +341,7 @@ namespace TrmGraphics {
         m_backBuffer[index].r = r;
         m_backBuffer[index].g = g;
         m_backBuffer[index].b = b;
-        m_backBuffer[index].zAxis = -1000;
+        m_backBuffer[index].zAxis = 1000;
 
         ++m_cursor_index;
         if(m_cursor_index >= m_rows * m_columns)
@@ -385,7 +385,7 @@ namespace TrmGraphics {
                     m_backBuffer[getIndex(y, x)].r = rBorder;
                     m_backBuffer[getIndex(y, x)].g = gBorder;
                     m_backBuffer[getIndex(y, x)].b = bBorder;
-                    m_backBuffer[getIndex(y, x)].zAxis = -1000;
+                    m_backBuffer[getIndex(y, x)].zAxis = 1000;
                     continue;
                 }
 
@@ -394,7 +394,7 @@ namespace TrmGraphics {
                     m_backBuffer[getIndex(y, x)].r = rFill;
                     m_backBuffer[getIndex(y, x)].g = gFill;
                     m_backBuffer[getIndex(y, x)].b = bFill;
-                    m_backBuffer[getIndex(y, x)].zAxis = -1000;
+                    m_backBuffer[getIndex(y, x)].zAxis = 1000;
                 }
 
             }
@@ -451,7 +451,7 @@ namespace TrmGraphics {
                 m_backBuffer[index].r = r;
                 m_backBuffer[index].g = g;
                 m_backBuffer[index].b = b;
-                m_backBuffer[index].zAxis = -1000;
+                m_backBuffer[index].zAxis = 1000;
 
             }
 
@@ -505,7 +505,7 @@ namespace TrmGraphics {
                         m_backBuffer[getIndex(y, x)].r = rFill;
                         m_backBuffer[getIndex(y, x)].g = gFill;
                         m_backBuffer[getIndex(y, x)].b = bFill;
-                        m_backBuffer[getIndex(y, x)].zAxis = -1000;
+                        m_backBuffer[getIndex(y, x)].zAxis = 1000;
                     }
                 }
             }
@@ -584,9 +584,9 @@ namespace TrmGraphics {
         //apply rotation and position
         translationMatrix mat;
 
-        mat = translationMatrix::getRotation(vec3D(0, 0, -camRot.getEulerAngles().z))
+        mat = translationMatrix::getRotation(vec3D(-camRot.getEulerAngles().x, 0, 0))
             * translationMatrix::getRotation(vec3D(0, -camRot.getEulerAngles().y, 0))
-            * translationMatrix::getRotation(vec3D(-camRot.getEulerAngles().x, 0, 0))
+            * translationMatrix::getRotation(vec3D(0, 0, -camRot.getEulerAngles().z))
             * translationMatrix::getTranslation(vec3D(-camPos.x, -camPos.y, -camPos.z));
         //mat = translationMatrix::getTranslation(camPos);
         //mat = translationMatrix::getRotation(camRot) * translationMatrix::getTranslation(vec3D(-camPos.x, -camPos.y, -camPos.z));
@@ -604,7 +604,7 @@ namespace TrmGraphics {
         //lightLevel = lightLevel > 0 ? lightLevel : 0;
 
         if(angle1 < 0 || angle2 < 0 || angle3 < 0) {
-            return;
+            //return;
         }
 
         //do perspective projection
@@ -695,7 +695,7 @@ namespace TrmGraphics {
 
                     int index = getIndex(y, x);
 
-                    if(m_backBuffer[index].zAxis == -999 || pos3D.z < m_backBuffer[index].zAxis) {
+                    if(m_backBuffer[index].zAxis == 999 || pos3D.z > m_backBuffer[index].zAxis) {
                         //pixel is part of the triangle!
                         m_backBuffer[index].c = c;
                         m_backBuffer[index].r = rFill * lightLevel;
@@ -762,7 +762,7 @@ namespace TrmGraphics {
                         m_backBuffer[index].r = rFill;
                         m_backBuffer[index].g = gFill;
                         m_backBuffer[index].b = bFill;
-                        m_backBuffer[index].zAxis = -1000;
+                        m_backBuffer[index].zAxis = 1000;
 
                     }
 
@@ -794,7 +794,7 @@ namespace TrmGraphics {
                 m_backBuffer[index].r = rBorder;
                 m_backBuffer[index].g = gBorder;
                 m_backBuffer[index].b = bBorder;
-                m_backBuffer[index].zAxis = -1000;
+                m_backBuffer[index].zAxis = 1000;
             }
         }
 
@@ -836,7 +836,7 @@ namespace TrmGraphics {
     //! saved the current back buffer as the background
     void ConsoleGraphics::saveBackground() {
         for(int i = 0; i < m_rows*m_columns; ++i) {
-            m_backBuffer[i].zAxis = -999;
+            m_backBuffer[i].zAxis = 999;
         }
         memcpy(m_background, m_backBuffer, sizeof(cPixel) * (m_rows * m_columns));
     }

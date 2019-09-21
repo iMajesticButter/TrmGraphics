@@ -1,5 +1,6 @@
 #include "quaternion.h"
 #include "vec3D.h"
+#include "translationMatrix.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -72,21 +73,15 @@ namespace TrmGraphics {
         z /= dst;
     }
 
-    vec3D quaternion::up() {
-        return vec3D(-(2 * (x*z + w*y)),
-                     -(2 * (y*z - w*x)),
-                     -(1-2*(x*x + y*y)));
+    vec3D quaternion::forward() {
+        return translationMatrix::getRotation(*this) * vec3D(0, 0, 1);
     }
-    vec3D quaternion::left() {
-        return vec3D((2 * (x*y - w*z)),
-                     -(1-2*(x*x + z*z)),
-                     (2 * (y*z + w*x)));
+    vec3D quaternion::up() {
+        return translationMatrix::getRotation(*this) * vec3D(0, -1, 0);
 
     }
-    vec3D quaternion::forward() {
-        return vec3D((2 * (x*y + w*z)),
-                     (1-2*(y*y + z*z)),
-                     (2 * (x*z - w*y)));
+    vec3D quaternion::left() {
+        return translationMatrix::getRotation(*this) * vec3D(-1, 0, 0);
     }
 
     //------------------

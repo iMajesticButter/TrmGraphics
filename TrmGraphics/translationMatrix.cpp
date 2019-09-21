@@ -47,7 +47,7 @@ namespace TrmGraphics {
     translationMatrix translationMatrix::getRotation(quaternion q) {
         translationMatrix mat;
 
-        double sqw = q.w * q.w;
+        /*double sqw = q.w * q.w;
         double sqx = q.x * q.x;
         double sqy = q.y * q.y;
         double sqz = q.z * q.z;
@@ -69,7 +69,32 @@ namespace TrmGraphics {
         tmp1 = q.y * q.z;
         tmp2 = q.x * q.w;
         mat.m_matrix[1][2] = 2 * (tmp1 + tmp2) * invsql;
-        mat.m_matrix[2][1] = 2 * (tmp1 - tmp2) * invsql;
+        mat.m_matrix[2][1] = 2 * (tmp1 - tmp2) * invsql;*/
+
+        q.normalize();
+
+        //This works and I dont know why...
+        double w = q.w;
+        double x = q.y;
+        double y = q.z;
+        double z = q.x;
+
+        //double sqw = q.w * q.w;
+        double xsq = x * x;
+        double ysq = y * y;
+        double zsq = z * z;
+
+        mat.m_matrix[0][0] = (1-2*ysq) - (2*zsq);
+        mat.m_matrix[1][0] = (2*x*y) - (2*z*w);
+        mat.m_matrix[2][0] = (2*x*z) + (2*y*w);
+
+        mat.m_matrix[0][1] = (2*x*y) + (2*z*w);
+        mat.m_matrix[1][1] = (1-2*xsq) - (2*zsq);
+        mat.m_matrix[2][1] = (2*y*z) - (2*x*w);
+
+        mat.m_matrix[0][2] = (2*x*z) - (2*y*w);
+        mat.m_matrix[1][2] = (2*y*z) + (2*x*w);
+        mat.m_matrix[2][2] = (1-2*xsq) - (2*ysq);
 
         return mat;
 
