@@ -159,12 +159,6 @@ int main() {
         if(console.keyPressed(VK_RIGHT)) {
             rot += vec3D(0, 0, 1);
         }
-        if(console.keyPressed('Q')) {
-            rot -= vec3D(1, 0, 0);
-        }
-        if(console.keyPressed('E')) {
-            rot += vec3D(1, 0, 0);
-        }
 
         if(console.keyPressed('I')) {
             sunLampAngles += vec3D(0, 0, 1) * console.getDeltaTime();
