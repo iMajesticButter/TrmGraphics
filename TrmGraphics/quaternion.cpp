@@ -16,7 +16,7 @@ namespace TrmGraphics {
 
     }
     quaternion::quaternion(const vec3D euler) {
-        double cy = cos(euler.z * 0.5);
+        /*double cy = cos(euler.z * 0.5);
         double sy = sin(euler.z * 0.5);
         double cr = cos(euler.x * 0.5);
         double sr = sin(euler.x * 0.5);
@@ -26,10 +26,24 @@ namespace TrmGraphics {
         w = cy * cr * cp + sy * sr * sp;
         x = cy * sr * cp - sy * cr * sp;
         y = cy * cr * sp + sy * sr * cp;
-        z = sy * cr * cp - cy * sr * sp;
+        z = sy * cr * cp - cy * sr * sp;*/
+
+        double sy = sin(euler.z * 0.5);
+        double cy = cos(euler.z * 0.5);
+        double sp = sin(euler.y * 0.5);
+        double cp = cos(euler.y * 0.5);
+        double sr = sin(euler.x * 0.5);
+        double cr = cos(euler.x * 0.5);
+
+        x = sr * cp * cy - cr * sp * sy;
+        y = cr * sp * cy + sr * cp * sy;
+        z = cr * cp * sy - sr * sp * cy;
+        w = cr * cp * cy + sr * sp * sy;
+
+
     }
 
-    vec3D quaternion::getEulerAngles() {
+    vec3D quaternion::getEulerAngles() const {
         vec3D euler;
 
         double sinr_cosp = 2 * (w * x + y * z);
@@ -58,21 +72,21 @@ namespace TrmGraphics {
         z /= dst;
     }
 
-    vec3D quaternion::forward() {
-        return vec3D(2 * (x*z + w*y),
-                     2 * (y*z - w*x),
-                     1-2*(x*x + y*y));
-    }
     vec3D quaternion::up() {
-        return vec3D(2 * (x*y - w*z),
-                     1-2*(x*x + z*z),
-                     2 * (y*z + w*x));
-
+        return vec3D(-(2 * (x*z + w*y)),
+                     -(2 * (y*z - w*x)),
+                     -(1-2*(x*x + y*y)));
     }
     vec3D quaternion::left() {
-        return vec3D(1-2*(y*y + z*z),
-                     2 * (x*y + w*z),
-                     2 * (x*z - w*y));
+        return vec3D((2 * (x*y - w*z)),
+                     -(1-2*(x*x + z*z)),
+                     (2 * (y*z + w*x)));
+
+    }
+    vec3D quaternion::forward() {
+        return vec3D((2 * (x*y + w*z)),
+                     (1-2*(y*y + z*z)),
+                     (2 * (x*z - w*y)));
     }
 
     //------------------

@@ -31,7 +31,7 @@ namespace TrmGraphics {
     struct cPixel {
         char c;
         unsigned int r, g, b;
-        double zAxis = 1;
+        double zAxis = -999;
 
         bool operator==(cPixel& other) {
             return c == other.c && r == other.r && g == other.g && b == other.b;
@@ -66,9 +66,10 @@ namespace TrmGraphics {
 
     double getVecAngle(vec3D v1, vec3D v2) {
         //get dot product
-        double dot = (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+        //double dot = (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
         //angle
-        return dot / (v1.GetMagnitude() * v2.GetMagnitude());
+        //return dot / (v1.GetMagnitude() * v2.GetMagnitude());
+        return v1.dot(v2) / (v1.GetMagnitude() * v2.GetMagnitude());
     }
 
     //----------PUBLIC FUNCTIONS----------
@@ -127,7 +128,7 @@ namespace TrmGraphics {
         HWND consoleHWND = GetConsoleWindow();
         RECT r;
         GetWindowRect(consoleHWND, &r);
-        MoveWindow(consoleHWND, r.left, r.top, (m_columns+5)*(int)((float)fontSize/2.0f), (3+m_rows)*fontSize, TRUE);
+        MoveWindow(consoleHWND, r.left, r.top, ((m_columns+5)*(int)((float)fontSize/1.999f)), ((3+m_rows)*fontSize), TRUE);
 
         if(!m_ansiSupported) {
             //hide cursor
@@ -300,6 +301,7 @@ namespace TrmGraphics {
             m_backBuffer[getIndex(pos.y, pos.x+i)].r = r;
             m_backBuffer[getIndex(pos.y, pos.x+i)].g = g;
             m_backBuffer[getIndex(pos.y, pos.x+i)].b = b;
+            m_backBuffer[getIndex(pos.y, pos.x+i)].zAxis = -1000;
             m_cursor_index = getIndex(pos.y , pos.x + i);
         }
 
@@ -339,6 +341,7 @@ namespace TrmGraphics {
         m_backBuffer[index].r = r;
         m_backBuffer[index].g = g;
         m_backBuffer[index].b = b;
+        m_backBuffer[index].zAxis = -1000;
 
         ++m_cursor_index;
         if(m_cursor_index >= m_rows * m_columns)
@@ -382,6 +385,7 @@ namespace TrmGraphics {
                     m_backBuffer[getIndex(y, x)].r = rBorder;
                     m_backBuffer[getIndex(y, x)].g = gBorder;
                     m_backBuffer[getIndex(y, x)].b = bBorder;
+                    m_backBuffer[getIndex(y, x)].zAxis = -1000;
                     continue;
                 }
 
@@ -390,6 +394,7 @@ namespace TrmGraphics {
                     m_backBuffer[getIndex(y, x)].r = rFill;
                     m_backBuffer[getIndex(y, x)].g = gFill;
                     m_backBuffer[getIndex(y, x)].b = bFill;
+                    m_backBuffer[getIndex(y, x)].zAxis = -1000;
                 }
 
             }
@@ -446,6 +451,7 @@ namespace TrmGraphics {
                 m_backBuffer[index].r = r;
                 m_backBuffer[index].g = g;
                 m_backBuffer[index].b = b;
+                m_backBuffer[index].zAxis = -1000;
 
             }
 
@@ -499,6 +505,7 @@ namespace TrmGraphics {
                         m_backBuffer[getIndex(y, x)].r = rFill;
                         m_backBuffer[getIndex(y, x)].g = gFill;
                         m_backBuffer[getIndex(y, x)].b = bFill;
+                        m_backBuffer[getIndex(y, x)].zAxis = -1000;
                     }
                 }
             }
@@ -521,7 +528,6 @@ namespace TrmGraphics {
     void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
         float d = 100; //distance from camera to projection plane
 
-
         bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
         if(!fill)
             drawBorders = true;
@@ -541,9 +547,10 @@ namespace TrmGraphics {
         vec3D planeNormal;
 
         if(norm.x == 20 && norm.y == 20 && norm.z == 20) {
-            planeNormal = vec3D((pv1.y * pv2.z) - (pv1.z * pv2.y),
-                                (pv1.z * pv2.x) - (pv1.x * pv2.z),
-                                (pv1.x * pv2.y) - (pv1.y * pv2.x));
+            //planeNormal = vec3D((pv1.y * pv2.z) - (pv1.z * pv2.y),
+            //                    (pv1.z * pv2.x) - (pv1.x * pv2.z),
+            //                    (pv1.x * pv2.y) - (pv1.y * pv2.x));
+            planeNormal = pv1.cross(pv2);
         } else {
             planeNormal = norm;
         }
@@ -577,16 +584,28 @@ namespace TrmGraphics {
         //apply rotation and position
         translationMatrix mat;
 
-        mat = translationMatrix::getRotation(vec3D(camRot.getEulerAngles().x, 0, 0))
-            * translationMatrix::getRotation(vec3D(0, camRot.getEulerAngles().y, 0))
-            * translationMatrix::getRotation(vec3D(0, 0, camRot.getEulerAngles().z))
-            * translationMatrix::getTranslation(camPos);
+        mat = translationMatrix::getRotation(vec3D(0, 0, -camRot.getEulerAngles().z))
+            * translationMatrix::getRotation(vec3D(0, -camRot.getEulerAngles().y, 0))
+            * translationMatrix::getRotation(vec3D(-camRot.getEulerAngles().x, 0, 0))
+            * translationMatrix::getTranslation(vec3D(-camPos.x, -camPos.y, -camPos.z));
         //mat = translationMatrix::getTranslation(camPos);
-        //mat = translationMatrix::getTranslation(camPos) * translationMatrix::getRotation(camRot);
+        //mat = translationMatrix::getRotation(camRot) * translationMatrix::getTranslation(vec3D(-camPos.x, -camPos.y, -camPos.z));
 
         pos1 = mat * pos1;
         pos2 = mat * pos2;
         pos3 = mat * pos3;
+
+        //dont draw if completely off screen
+        double angle1 = getVecAngle(pos1, vec3D(0, 0, -1));
+        double angle2 = getVecAngle(pos2, vec3D(0, 0, -1));
+        double angle3 = getVecAngle(pos3, vec3D(0, 0, -1));
+
+        //lightLevel = angle1/100;
+        //lightLevel = lightLevel > 0 ? lightLevel : 0;
+
+        if(angle1 < 0 || angle2 < 0 || angle3 < 0) {
+            return;
+        }
 
         //do perspective projection
         vec2D pos12d = pos1*(d / pos1.z);
@@ -623,13 +642,15 @@ namespace TrmGraphics {
         pv1 = pos2 - pos1;
         pv2 = pos2 - pos3;
 
-        planeNormal = vec3D((pv1.y * pv2.z) - (pv1.z * pv2.y),
-                            (pv1.z * pv2.x) - (pv1.x * pv2.z),
-                            (pv1.x * pv2.y) - (pv1.y * pv2.x));
+        //planeNormal = vec3D((pv1.y * pv2.z) - (pv1.z * pv2.y),
+        //                    (pv1.z * pv2.x) - (pv1.x * pv2.z),
+        //                    (pv1.x * pv2.y) - (pv1.y * pv2.x));
+
+        planeNormal = pv1.cross(pv2);
 
         //run rasterization algorithm
-        for(int x = std::round(minX); x <= std::round(maxX); ++x) {
-            for(int y = std::round(minY); y <= std::round(maxY); ++y) {
+        for(int x = std::floor(minX); x <= std::ceil(maxX); ++x) {
+            for(int y = std::floor(minY); y <= std::ceil(maxY); ++y) {
 
                 bool fill = true;
                 fill &= edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
@@ -650,10 +671,12 @@ namespace TrmGraphics {
                     //vec3D ray(((double)x - center.x), ((double)y - center.y), d);
                     vec3D diff(pos1.x, pos1.y, pos1.z);
 
-                    //prod1: get .product of ray and planeNormal
-                    double prod1 = (diff.x * planeNormal.x) + (diff.y * planeNormal.y) + (diff.z * planeNormal.z);
-                    //prod2: get .product of ray and diff
-                    double prod2 = (ray.x * planeNormal.x) + (ray.y * planeNormal.y) + (ray.z * planeNormal.z);
+                    //prod1: get .product of diff and planeNormal
+                    //double prod1 = (diff.x * planeNormal.x) + (diff.y * planeNormal.y) + (diff.z * planeNormal.z);
+                    double prod1 = diff.dot(planeNormal);
+                    //prod2: get .product of ray and planeNormal
+                    //double prod2 = (ray.x * planeNormal.x) + (ray.y * planeNormal.y) + (ray.z * planeNormal.z);
+                    double prod2 = ray.dot(planeNormal);
                     //prod3: prod1/prod2
                     double prod3 = prod1/prod2;
                     //intersect point should be 0 - ray * prod3
@@ -672,7 +695,7 @@ namespace TrmGraphics {
 
                     int index = getIndex(y, x);
 
-                    if(m_backBuffer[index].zAxis == 1 || pos3D.z > m_backBuffer[index].zAxis) {
+                    if(m_backBuffer[index].zAxis == -999 || pos3D.z < m_backBuffer[index].zAxis) {
                         //pixel is part of the triangle!
                         m_backBuffer[index].c = c;
                         m_backBuffer[index].r = rFill * lightLevel;
@@ -739,6 +762,7 @@ namespace TrmGraphics {
                         m_backBuffer[index].r = rFill;
                         m_backBuffer[index].g = gFill;
                         m_backBuffer[index].b = bFill;
+                        m_backBuffer[index].zAxis = -1000;
 
                     }
 
@@ -770,6 +794,7 @@ namespace TrmGraphics {
                 m_backBuffer[index].r = rBorder;
                 m_backBuffer[index].g = gBorder;
                 m_backBuffer[index].b = bBorder;
+                m_backBuffer[index].zAxis = -1000;
             }
         }
 
@@ -811,7 +836,7 @@ namespace TrmGraphics {
     //! saved the current back buffer as the background
     void ConsoleGraphics::saveBackground() {
         for(int i = 0; i < m_rows*m_columns; ++i) {
-            m_backBuffer[i].zAxis = 1;
+            m_backBuffer[i].zAxis = -999;
         }
         memcpy(m_background, m_backBuffer, sizeof(cPixel) * (m_rows * m_columns));
     }

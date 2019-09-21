@@ -26,25 +26,28 @@ namespace TrmGraphics {
         //! get the vectors magnitude squared (more efficient)
         float GetMagnitudeSquared();
 
+        //dot product
+        float dot(const vec2D& other);
+
         //------------------
         // + - * / operators
         //------------------
 
         vec2D operator+(const vec2D& other) const;
         vec2D operator+(const vec3D& other) const;
-        vec2D operator+(const float val) const;
+        vec2D operator+(const double val) const;
 
         vec2D operator-(const vec2D& other) const;
         vec2D operator-(const vec3D& other) const;
-        vec2D operator-(const float val) const;
+        vec2D operator-(const double val) const;
 
         vec2D operator*(const vec2D& other) const;
         vec2D operator*(const vec3D& other) const;
-        vec2D operator*(const float val) const;
+        vec2D operator*(const double val) const;
 
         vec2D operator/(const vec2D& other) const;
         vec2D operator/(const vec3D& other) const;
-        vec2D operator/(const float val) const;
+        vec2D operator/(const double val) const;
 
         //----------------------
         // += -= *= /= operators
@@ -52,19 +55,19 @@ namespace TrmGraphics {
 
         vec2D& operator+=(const vec2D& other);
         vec2D& operator+=(const vec3D& other);
-        vec2D& operator+=(const float val);
+        vec2D& operator+=(const double val);
 
         vec2D& operator-=(const vec2D& other);
         vec2D& operator-=(const vec3D& other);
-        vec2D& operator-=(const float val);
+        vec2D& operator-=(const double val);
 
         vec2D& operator*=(const vec2D& other);
         vec2D& operator*=(const vec3D& other);
-        vec2D& operator*=(const float val);
+        vec2D& operator*=(const double val);
 
         vec2D& operator/=(const vec2D& other);
         vec2D& operator/=(const vec3D& other);
-        vec2D& operator/=(const float val);
+        vec2D& operator/=(const double val);
 
     };
 

@@ -19,11 +19,11 @@ int main() {
     const int edges = -1;
     const float moveSpd = 10;
 
-    TrmGraphics::ConsoleGraphics console(width, height, false, 6);
+    TrmGraphics::ConsoleGraphics console(width, height, false, 16);
 
     //camera position
-    vec3D camPos(0, 0, 80);
-    quaternion camRot(vec3D(0, 0, 0));
+    vec3D camPos(0, 0, 0);
+    quaternion camRot(vec3D(1.5708, 0, 1.5708));
     vec3D camEulerAngles = camRot.getEulerAngles();
     vec3D sunLampAngles = vec3D(0, 1, 0);
 
@@ -122,49 +122,49 @@ int main() {
         vec3D rot;
         vec3D mov;
         if(console.keyPressed(VK_SPACE)) {
-            mov += camRot.left();
+            //mov += camRot.up();
+            mov -= vec3D(1, 0, 0);
         }
         if(console.keyPressed('C')) {
-            mov -= camRot.left();
+            //mov -= camRot.up();
+            mov += vec3D(1, 0, 0);
         }
         if(console.keyPressed('A')) {
-            mov += camRot.up();
+            //mov += camRot.left();
+            mov += vec3D(0, cos(camEulerAngles.x), sin(camEulerAngles.x));
         }
         if(console.keyPressed('D')) {
-            mov -= camRot.up();
+            //mov -= camRot.left();
+            mov -= vec3D(0, cos(camEulerAngles.x), sin(camEulerAngles.x));
         }
         if(console.keyPressed('W')) {
-            mov += camRot.forward();
+            //mov += camRot.forward();
             //mov += vec3D(0, 0, -1);
+            mov -= vec3D(0, -sin(camEulerAngles.x), cos(camEulerAngles.x));
         }
         if(console.keyPressed('S')) {
-            mov -= camRot.forward();
+            //mov -= camRot.forward();
             //mov += vec3D(0, 0, 1);
+            mov += vec3D(0, -sin(camEulerAngles.x), cos(camEulerAngles.x));
         }
         if(console.keyPressed(VK_UP)) {
-            rot += vec3D(-1, 0, 0);
-        }
-        if(console.keyPressed(VK_DOWN)) {
-            rot += vec3D(1, 0, 0);
-        }
-        if(console.keyPressed(VK_LEFT)) {
             rot += vec3D(0, 1, 0);
         }
+        if(console.keyPressed(VK_DOWN)) {
+            rot -= vec3D(0, 1, 0);
+        }
+        if(console.keyPressed(VK_LEFT)) {
+            rot += vec3D(1, 0, 0);
+        }
         if(console.keyPressed(VK_RIGHT)) {
-            rot += vec3D(0, -1, 0);
-        }
-        if(console.keyPressed('Q')) {
-            rot += vec3D(0, 0, 1);
-        }
-        if(console.keyPressed('E')) {
-            rot += vec3D(0, 0, -1);
+            rot -= vec3D(1, 0, 0);
         }
 
         if(console.keyPressed('I')) {
-            sunLampAngles += vec3D(1, 0, 0) * console.getDeltaTime();
+            sunLampAngles += vec3D(0, 0, 1) * console.getDeltaTime();
         }
         if(console.keyPressed('K')) {
-            sunLampAngles += vec3D(-1, 0, 0) * console.getDeltaTime();
+            sunLampAngles += vec3D(0, 0, -1) * console.getDeltaTime();
         }
         if(console.keyPressed('J')) {
             sunLampAngles += vec3D(0, 1, 0) * console.getDeltaTime();

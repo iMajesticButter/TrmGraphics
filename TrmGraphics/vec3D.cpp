@@ -1,5 +1,6 @@
 #include "vec2D.h"
 #include "vec3D.h"
+#include "quaternion.h"
 #include <math.h>
 
 namespace TrmGraphics {
@@ -33,6 +34,17 @@ namespace TrmGraphics {
         return pow(x, 2) + pow(y, 2) + pow(z, 2);
     }
 
+    //dot and cross products
+    float vec3D::dot(const vec3D& other) {
+        return (x * other.x) + (y * other.y) + (z * other.z);
+    }
+
+    vec3D vec3D::cross(const vec3D& other) {
+        return vec3D((y * other.z) - (z * other.y),
+                     (z * other.x) - (x * other.z),
+                     (x * other.y) - (y * other.x));
+    }
+
     //------------------
     // + - * / operators
     //------------------
@@ -43,7 +55,7 @@ namespace TrmGraphics {
     vec3D vec3D::operator+(const vec3D& other) const {
         return vec3D(x + other.x, y + other.y, z + other.z);
     }
-    vec3D vec3D::operator+(float val) const {
+    vec3D vec3D::operator+(double val) const {
         return vec3D(x + val, y + val, z + val);
     }
 
@@ -53,7 +65,7 @@ namespace TrmGraphics {
     vec3D vec3D::operator-(const vec3D& other) const {
         return vec3D(x - other.x, y - other.y, z - other.z);
     }
-    vec3D vec3D::operator-(float val) const {
+    vec3D vec3D::operator-(double val) const {
         return vec3D(x - val, y - val, z - val);
     }
 
@@ -63,7 +75,7 @@ namespace TrmGraphics {
     vec3D vec3D::operator*(const vec3D& other) const {
         return vec3D(x * other.x, y * other.y, z * other.z);
     }
-    vec3D vec3D::operator*(float val) const {
+    vec3D vec3D::operator*(double val) const {
         return vec3D(x * val, y * val, z * val);
     }
 
@@ -73,7 +85,7 @@ namespace TrmGraphics {
     vec3D vec3D::operator/(const vec3D& other) const {
         return vec3D(x / other.x, y / other.y, z / other.z);
     }
-    vec3D vec3D::operator/(float val) const {
+    vec3D vec3D::operator/(double val) const {
         return vec3D(x / val, y / val, z / val);
     }
 
@@ -92,7 +104,7 @@ namespace TrmGraphics {
         z += other.z;
         return *this;
     }
-    vec3D& vec3D::operator+=(float val) {
+    vec3D& vec3D::operator+=(double val) {
         x += val;
         y += val;
         z += val;
@@ -110,7 +122,7 @@ namespace TrmGraphics {
         z -= other.z;
         return *this;
     }
-    vec3D& vec3D::operator-=(float val) {
+    vec3D& vec3D::operator-=(double val) {
         x -= val;
         y -= val;
         z -= val;
@@ -128,7 +140,7 @@ namespace TrmGraphics {
         z *= other.z;
         return *this;
     }
-    vec3D& vec3D::operator*=(float val) {
+    vec3D& vec3D::operator*=(double val) {
         x *= val;
         y *= val;
         z *= val;
@@ -146,11 +158,20 @@ namespace TrmGraphics {
         z /= other.z;
         return *this;
     }
-    vec3D& vec3D::operator/=(float val) {
+    vec3D& vec3D::operator/=(double val) {
         x /= val;
         y /= val;
         z /= val;
         return *this;
+    }
+
+    //---------------------------
+    //rotate vector by quaternion
+    //---------------------------
+
+    vec3D vec3D::operator*(const quaternion& q) const {
+        vec3D t = vec3D(q.x, q.y, q.z).cross(*this) * 2;
+        return *this + (t * q.w) + vec3D(q.x, q.y, q.z).cross(t);
     }
 
 }

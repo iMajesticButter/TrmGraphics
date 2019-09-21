@@ -6,6 +6,7 @@
 namespace TrmGraphics {
 
     typedef class vec2D vec2D;
+    typedef class quaternion quaternion;
 
     //! 3d vector containing x, y, and z
     class EXPORT vec3D {
@@ -26,25 +27,29 @@ namespace TrmGraphics {
         //! get the vectors magnitude squared (more efficient)
         float GetMagnitudeSquared();
 
+        //dot and cross products
+        float dot(const vec3D& other);
+        vec3D cross(const vec3D& other);
+
         //------------------
         // + - * / operators
         //------------------
 
         vec3D operator+(const vec2D& other) const;
         vec3D operator+(const vec3D& other) const;
-        vec3D operator+(const float val) const;
+        vec3D operator+(const double val) const;
 
         vec3D operator-(const vec2D& other) const;
         vec3D operator-(const vec3D& other) const;
-        vec3D operator-(const float val) const;
+        vec3D operator-(const double val) const;
 
         vec3D operator*(const vec2D& other) const;
         vec3D operator*(const vec3D& other) const;
-        vec3D operator*(const float val) const;
+        vec3D operator*(const double val) const;
 
         vec3D operator/(const vec2D& other) const;
         vec3D operator/(const vec3D& other) const;
-        vec3D operator/(const float val) const;
+        vec3D operator/(const double val) const;
 
         //----------------------
         // += -= *= /= operators
@@ -52,19 +57,25 @@ namespace TrmGraphics {
 
         vec3D& operator+=(const vec2D& other);
         vec3D& operator+=(const vec3D& other);
-        vec3D& operator+=(const float val);
+        vec3D& operator+=(const double val);
 
         vec3D& operator-=(const vec2D& other);
         vec3D& operator-=(const vec3D& other);
-        vec3D& operator-=(const float val);
+        vec3D& operator-=(const double val);
 
         vec3D& operator*=(const vec2D& other);
         vec3D& operator*=(const vec3D& other);
-        vec3D& operator*=(const float val);
+        vec3D& operator*=(const double val);
 
         vec3D& operator/=(const vec2D& other);
         vec3D& operator/=(const vec3D& other);
-        vec3D& operator/=(const float val);
+        vec3D& operator/=(const double val);
+
+        //---------------------------
+        //rotate vector by quaternion
+        //---------------------------
+
+        vec3D operator*(const quaternion& q) const;
 
     };
 

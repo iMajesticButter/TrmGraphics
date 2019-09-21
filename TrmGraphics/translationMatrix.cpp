@@ -47,30 +47,29 @@ namespace TrmGraphics {
     translationMatrix translationMatrix::getRotation(quaternion q) {
         translationMatrix mat;
 
-        q.normalize();
-
         double sqw = q.w * q.w;
         double sqx = q.x * q.x;
         double sqy = q.y * q.y;
         double sqz = q.z * q.z;
 
-        mat.m_matrix[0][0] = ( sqx - sqy - sqz + sqw);
-        mat.m_matrix[1][1] = (-sqx + sqy - sqz + sqw);
-        mat.m_matrix[2][2] = (-sqx - sqy + sqz + sqw);
+        double invsql = 1/(sqx + sqy + sqz + sqw);
+        mat.m_matrix[0][0] = ( sqx - sqy - sqz + sqw) * invsql;
+        mat.m_matrix[1][1] = (-sqx + sqy - sqz + sqw) * invsql;
+        mat.m_matrix[2][2] = (-sqx - sqy + sqz + sqw) * invsql;
 
         double tmp1 = q.x * q.y;
         double tmp2 = q.z * q.w;
-        mat.m_matrix[0][1] = 2 * (tmp1 + tmp2);
-        mat.m_matrix[1][0] = 2 * (tmp1 - tmp2);
+        mat.m_matrix[0][1] = 2 * (tmp1 + tmp2) * invsql;
+        mat.m_matrix[1][0] = 2 * (tmp1 - tmp2) * invsql;
 
         tmp1 = q.x * q.z;
         tmp2 = q.y * q.w;
-        mat.m_matrix[0][2] = 2 * (tmp1 - tmp2);
-        mat.m_matrix[2][0] = 2 * (tmp1 + tmp2);
+        mat.m_matrix[0][2] = 2 * (tmp1 - tmp2) * invsql;
+        mat.m_matrix[2][0] = 2 * (tmp1 + tmp2) * invsql;
         tmp1 = q.y * q.z;
         tmp2 = q.x * q.w;
-        mat.m_matrix[1][2] = 2 * (tmp1 + tmp2);
-        mat.m_matrix[2][1] = 2 * (tmp1 - tmp2);
+        mat.m_matrix[1][2] = 2 * (tmp1 + tmp2) * invsql;
+        mat.m_matrix[2][1] = 2 * (tmp1 - tmp2) * invsql;
 
         return mat;
 

@@ -4,13 +4,14 @@
 #ifndef TRMGRAPHICS_TRANSLATION_MATRIX_HEADER
 #define TRMGRAPHICS_TRANSLATION_MATRIX_HEADER
 
+#include "preC.h"
 
 namespace TrmGraphics {
 
     typedef class vec3D vec3D;
     typedef class quaternion quaternion;
 
-    class translationMatrix {
+    class EXPORT translationMatrix {
     public:
 
         translationMatrix(bool identity = true);

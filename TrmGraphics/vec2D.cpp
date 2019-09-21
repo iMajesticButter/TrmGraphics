@@ -32,6 +32,11 @@ namespace TrmGraphics {
         return pow(x, 2) + pow(y, 2);
     }
 
+    //dot and cross products
+    float vec2D::dot(const vec2D& other) {
+        return (x * other.x) + (y * other.y);
+    }
+
     //------------------
     // + - * / operators
     //------------------
@@ -42,7 +47,7 @@ namespace TrmGraphics {
     vec2D vec2D::operator+(const vec3D& other) const {
         return vec2D(x + other.x, y + other.y);
     }
-    vec2D vec2D::operator+(const float val) const {
+    vec2D vec2D::operator+(const double val) const {
         return vec2D(x + val, y + val);
     }
 
@@ -52,7 +57,7 @@ namespace TrmGraphics {
     vec2D vec2D::operator-(const vec3D& other) const {
         return vec2D(x - other.x, y - other.y);
     }
-    vec2D vec2D::operator-(const float val) const {
+    vec2D vec2D::operator-(const double val) const {
         return vec2D(x - val, y - val);
     }
 
@@ -62,7 +67,7 @@ namespace TrmGraphics {
     vec2D vec2D::operator*(const vec3D& other) const {
         return vec2D(x * other.x, y * other.y);
     }
-    vec2D vec2D::operator*(const float val) const {
+    vec2D vec2D::operator*(const double val) const {
         return vec2D(x * val, y * val);
     }
 
@@ -72,7 +77,7 @@ namespace TrmGraphics {
     vec2D vec2D::operator/(const vec3D& other) const {
         return vec2D(x / other.x, y / other.y);
     }
-    vec2D vec2D::operator/(const float val) const {
+    vec2D vec2D::operator/(const double val) const {
         return vec2D(x / val, y / val);
     }
 
@@ -90,7 +95,7 @@ namespace TrmGraphics {
         y += other.y;
         return *this;
     }
-    vec2D& vec2D::operator+=(const float val) {
+    vec2D& vec2D::operator+=(const double val) {
         x += val;
         y += val;
         return *this;
@@ -106,7 +111,7 @@ namespace TrmGraphics {
         y -= other.y;
         return *this;
     }
-    vec2D& vec2D::operator-=(const float val) {
+    vec2D& vec2D::operator-=(const double val) {
         x -= val;
         y -= val;
         return *this;
@@ -122,7 +127,7 @@ namespace TrmGraphics {
         y *= other.y;
         return *this;
     }
-    vec2D& vec2D::operator*=(const float val) {
+    vec2D& vec2D::operator*=(const double val) {
         x *= val;
         y *= val;
         return *this;
@@ -138,7 +143,7 @@ namespace TrmGraphics {
         y /= other.y;
         return *this;
     }
-    vec2D& vec2D::operator/=(const float val) {
+    vec2D& vec2D::operator/=(const double val) {
         x /= val;
         y /= val;
         return *this;
