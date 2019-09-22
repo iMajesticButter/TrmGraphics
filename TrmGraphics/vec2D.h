@@ -1,5 +1,5 @@
-#ifndef TRMGRAPHICS_VEC2D_HEADER
-#define TRMGRAPHICS_VEC2D_HEADER
+#ifndef TrmGraphics_Vec2D_HEADER
+#define TrmGraphics_Vec2D_HEADER
 
 #include "preC.h"
 

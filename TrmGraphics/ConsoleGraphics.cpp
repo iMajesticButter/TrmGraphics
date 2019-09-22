@@ -571,7 +571,7 @@ namespace TrmGraphics {
         float sunAngle = getVecAngle(sunVec, planeNormal);
 
         //increment brightness level
-        float sunBrt = ((sunAngle * 57.2958)/90);
+        float sunBrt = (((sunAngle * 57.2958)+45)/130);
         //float sunBrt = 1 - ((camAngle1 * 57.2958)/45);
         sunBrt = sunBrt > 0 ? sunBrt : 0;
         sunBrt = sunBrt < 1 ? sunBrt : 1;

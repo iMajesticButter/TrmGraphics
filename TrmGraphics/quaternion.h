@@ -1,5 +1,5 @@
-#ifndef TRMGRAPHICS_QUATERNION_HEADER
-#define TRMGRAPHICS_QUATERNION_HEADER
+#ifndef TrmGraphics_Quaternion_HEADER
+#define TrmGraphics_Quaternion_HEADER
 
 #include "preC.h"
 

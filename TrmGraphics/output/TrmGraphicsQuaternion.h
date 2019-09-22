@@ -1,5 +1,5 @@
-#ifndef TRMGRAPHICS_QUATERNION_HEADER
-#define TRMGRAPHICS_QUATERNION_HEADER
+#ifndef TrmGraphics_Quaternion_HEADER
+#define TrmGraphics_Quaternion_HEADER
 
 namespace TrmGraphics {
 
@@ -14,7 +14,10 @@ namespace TrmGraphics {
         quaternion(const double _w, const double _x, const double _y, const double _z);
         quaternion(const vec3D euler);
 
-        vec3D getEulerAngles();
+        vec3D getEulerAngles() const;
+        vec3D forward();
+        vec3D up();
+        vec3D left();
 
         void normalize();
 
@@ -43,4 +46,5 @@ namespace TrmGraphics {
         quaternion& operator/=(const quaternion& other);
     };
 }
+
 #endif

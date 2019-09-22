@@ -68,8 +68,10 @@ int main() {
 
     TrmGraphics::stlLoader model("./model.stl");
 
-    char c = (char)0;
+    char c = (char)219;
     //char c = '#';
+
+    console.setBackground((char)219, 6, 6, 6);
 
     float i = 0;
 

@@ -1,5 +1,6 @@
-#ifndef TRMGRAPHICS_VEC2D_HEADER
-#define TRMGRAPHICS_VEC2D_HEADER
+#ifndef TrmGraphics_Vec2D_HEADER
+#define TrmGraphics_Vec2D_HEADER
+
 namespace TrmGraphics {
 
     typedef class vec3D vec3D;
@@ -16,12 +17,15 @@ namespace TrmGraphics {
         vec2D(const double _x, const double _y);
 
         //! normalize the vector
-        void normalize();
+        vec2D& normalize();
 
         //! get the vectors magnitude
         float GetMagnitude();
         //! get the vectors magnitude squared (more efficient)
         float GetMagnitudeSquared();
+
+        //dot product
+        float dot(const vec2D& other);
 
         //------------------
         // + - * / operators
@@ -29,19 +33,19 @@ namespace TrmGraphics {
 
         vec2D operator+(const vec2D& other) const;
         vec2D operator+(const vec3D& other) const;
-        vec2D operator+(const float val) const;
+        vec2D operator+(const double val) const;
 
         vec2D operator-(const vec2D& other) const;
         vec2D operator-(const vec3D& other) const;
-        vec2D operator-(const float val) const;
+        vec2D operator-(const double val) const;
 
         vec2D operator*(const vec2D& other) const;
         vec2D operator*(const vec3D& other) const;
-        vec2D operator*(const float val) const;
+        vec2D operator*(const double val) const;
 
         vec2D operator/(const vec2D& other) const;
         vec2D operator/(const vec3D& other) const;
-        vec2D operator/(const float val) const;
+        vec2D operator/(const double val) const;
 
         //----------------------
         // += -= *= /= operators
@@ -49,19 +53,19 @@ namespace TrmGraphics {
 
         vec2D& operator+=(const vec2D& other);
         vec2D& operator+=(const vec3D& other);
-        vec2D& operator+=(const float val);
+        vec2D& operator+=(const double val);
 
         vec2D& operator-=(const vec2D& other);
         vec2D& operator-=(const vec3D& other);
-        vec2D& operator-=(const float val);
+        vec2D& operator-=(const double val);
 
         vec2D& operator*=(const vec2D& other);
         vec2D& operator*=(const vec3D& other);
-        vec2D& operator*=(const float val);
+        vec2D& operator*=(const double val);
 
         vec2D& operator/=(const vec2D& other);
         vec2D& operator/=(const vec3D& other);
-        vec2D& operator/=(const float val);
+        vec2D& operator/=(const double val);
 
     };
 

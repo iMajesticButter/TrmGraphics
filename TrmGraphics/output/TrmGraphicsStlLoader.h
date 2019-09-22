@@ -2,8 +2,8 @@
 #define TrmGraphics_StlLoader_HEADER
 
 #include <vector>
-#include "vec3D.h"
 #include <string>
+#include "TrmGraphicsVec3D.h"
 
 namespace TrmGraphics {
 
