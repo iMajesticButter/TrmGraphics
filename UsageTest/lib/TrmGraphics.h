@@ -18,13 +18,6 @@ namespace TrmGraphics {
     typedef struct cPixel cPixel;
     typedef class quaternion quaternion;
 
-    struct pointLight {
-        vec3D pos;
-        float intencity;
-        float radius;
-        float falloff;
-    };
-
     //! Graphical Console Manager
     /*!
       Manages drawing text efficiently in 24bit color
@@ -293,34 +286,6 @@ namespace TrmGraphics {
           \sa setAmbientLight(), addPointLight(), addTri3D()
         */
         void setSunLamp(vec3D dir, float level);
-
-        //! add a new point light
-        /*!
-          add a new point light\n
-          note: this only applies to 3D triangles
-          \param light the point light to be added
-          \sa setSunLamp(), setAmbientLight(), addTri3D(), getPointLight(), removePointLight()
-        */
-        //void addPointLight(pointLight light);
-
-        //! get a point light by index
-        /*!
-          get a point light by index\n
-          note: this only applies to 3D triangles
-          \param index the index to get the point light from
-          \returns a pointer to the point light at index *index*
-          \sa addPointLight(), removePointLight()
-        */
-        //pointLight* getPointLight(unsigned index);
-
-        //! remove a point light by index
-        /*!
-          remove a point light by index\n
-          note: this only applies to 3D triangles
-          \param index the index to remove the point light from
-          \sa addPointLight(), getPointLight()
-        */
-        //void removePointLight(int index);
 
         //! saved the current back buffer as the background
         /*!

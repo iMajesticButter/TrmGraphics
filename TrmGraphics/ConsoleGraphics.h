@@ -20,12 +20,12 @@ namespace TrmGraphics {
     typedef struct cPixel cPixel;
     typedef class quaternion quaternion;
 
-    struct pointLight {
+    /*struct pointLight {
         vec3D pos;
-        float intencity;
+        float intensity;
         float radius;
         float falloff;
-    };
+    };*/
 
     //! Graphical Console Manager
     /*!
