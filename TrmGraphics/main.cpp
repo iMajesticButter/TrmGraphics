@@ -14,10 +14,10 @@ using TrmGraphics::quaternion;
 
 int main() {
 
-    const int width = 200;
-    const int height = 100;
-    const bool faces = true;
-    const int edges = -1;
+    const int width = 100;
+    const int height = 50;
+    const bool faces = false;
+    const int edges = 255;
     const float moveSpd = 0.25;
 
     TrmGraphics::ConsoleGraphics console(width, height, false, 6);

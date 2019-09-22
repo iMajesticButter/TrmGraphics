@@ -430,6 +430,8 @@ namespace TrmGraphics {
         //get vector from point1 to point2
         float vecX = pos2.x - pos1.x;
         float vecY = pos2.y - pos1.y;
+        vec2D v = pos2 - pos1;
+        v.normalize();
 
         //normalize vector
         float a = atan2(vecY, vecX);
@@ -437,7 +439,7 @@ namespace TrmGraphics {
         vecY = sin(a);
 
         //draw line to backbuffer
-        for(int i = 0; i <= dst; ++i) {
+        for(int i = 0; i <= dst && i < 1000; ++i) {
             float nVecX = round(vecX * i);
             float nVecY = round(vecY * i);
 
@@ -528,11 +530,11 @@ namespace TrmGraphics {
     }
 
     //! print a triangle in 3d space to the backbuffer!
-    void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fill) {
+    void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fillTris) {
         float d = 100; //distance from camera to projection plane
 
         bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
-        if(!fill)
+        if(!fillTris)
             drawBorders = true;
 
         float lightLevel = 0;
@@ -664,59 +666,61 @@ namespace TrmGraphics {
         planeNormal = pv1.cross(pv2);
 
         //run rasterization algorithm
-        for(int x = std::floor(minX); x <= std::ceil(maxX); ++x) {
-            for(int y = std::floor(minY); y <= std::ceil(maxY); ++y) {
+        if(fillTris) {
+            for(int x = std::floor(minX); x <= std::ceil(maxX); ++x) {
+                for(int y = std::floor(minY); y <= std::ceil(maxY); ++y) {
 
-                bool fill = true;
-                fill &= edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
-                fill &= edgeFunc(pos22d.x, pos22d.y, pos32d.x, pos32d.y, x, y);
-                fill &= edgeFunc(pos32d.x, pos32d.y, pos12d.x, pos12d.y, x, y);
-                if(!fill){
-                    fill = true;
-                    fill &= !edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
-                    fill &= !edgeFunc(pos22d.x, pos22d.y, pos32d.x, pos32d.y, x, y);
-                    fill &= !edgeFunc(pos32d.x, pos32d.y, pos12d.x, pos12d.y, x, y);
-                }
+                    bool fill = true;
+                    fill &= edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
+                    fill &= edgeFunc(pos22d.x, pos22d.y, pos32d.x, pos32d.y, x, y);
+                    fill &= edgeFunc(pos32d.x, pos32d.y, pos12d.x, pos12d.y, x, y);
+                    if(!fill){
+                        fill = true;
+                        fill &= !edgeFunc(pos12d.x, pos12d.y, pos22d.x, pos22d.y, x, y);
+                        fill &= !edgeFunc(pos22d.x, pos22d.y, pos32d.x, pos32d.y, x, y);
+                        fill &= !edgeFunc(pos32d.x, pos32d.y, pos12d.x, pos12d.y, x, y);
+                    }
 
-                if(fill) {
+                    if(fill) {
 
-                    //get z coordinate
-                    //get vector
-                    vec3D ray(((double)x - center.x) / ctd.x, ((double)y - center.y) / ctd.y, d);
-                    //vec3D ray(((double)x - center.x), ((double)y - center.y), d);
-                    vec3D diff(pos1.x, pos1.y, pos1.z);
+                        //get z coordinate
+                        //get vector
+                        vec3D ray(((double)x - center.x) / ctd.x, ((double)y - center.y) / ctd.y, d);
+                        //vec3D ray(((double)x - center.x), ((double)y - center.y), d);
+                        vec3D diff(pos1.x, pos1.y, pos1.z);
 
-                    //prod1: get .product of diff and planeNormal
-                    //double prod1 = (diff.x * planeNormal.x) + (diff.y * planeNormal.y) + (diff.z * planeNormal.z);
-                    double prod1 = diff.dot(planeNormal);
-                    //prod2: get .product of ray and planeNormal
-                    //double prod2 = (ray.x * planeNormal.x) + (ray.y * planeNormal.y) + (ray.z * planeNormal.z);
-                    double prod2 = ray.dot(planeNormal);
-                    //prod3: prod1/prod2
-                    double prod3 = prod1/prod2;
-                    //intersect point should be 0 - ray * prod3
-                    vec3D pos3D = vec3D(0,0,0) - ray * prod3;
-
-                    /*if(pos3D.z < m_backBuffer[getIndex(y, x)].zAxis) {
-                        //try inverting normals
-                        prod1 = (diff.x * -planeNormal.x) + (diff.y * -planeNormal.y) + (diff.z * -planeNormal.z);
-                        //prod2: get .product of ray and diff
-                        prod2 = (ray.x * -planeNormal.x) + (ray.y * -planeNormal.y) + (ray.z * -planeNormal.z);
+                        //prod1: get .product of diff and planeNormal
+                        //double prod1 = (diff.x * planeNormal.x) + (diff.y * planeNormal.y) + (diff.z * planeNormal.z);
+                        double prod1 = diff.dot(planeNormal);
+                        //prod2: get .product of ray and planeNormal
+                        //double prod2 = (ray.x * planeNormal.x) + (ray.y * planeNormal.y) + (ray.z * planeNormal.z);
+                        double prod2 = ray.dot(planeNormal);
                         //prod3: prod1/prod2
-                        prod3 = prod1/prod2;
+                        double prod3 = prod1/prod2;
                         //intersect point should be 0 - ray * prod3
-                        pos3D = vec3D(0,0,0) - ray * prod3;
-                    }*/
+                        vec3D pos3D = vec3D(0,0,0) - ray * prod3;
 
-                    int index = getIndex(y, x);
+                        /*if(pos3D.z < m_backBuffer[getIndex(y, x)].zAxis) {
+                            //try inverting normals
+                            prod1 = (diff.x * -planeNormal.x) + (diff.y * -planeNormal.y) + (diff.z * -planeNormal.z);
+                            //prod2: get .product of ray and diff
+                            prod2 = (ray.x * -planeNormal.x) + (ray.y * -planeNormal.y) + (ray.z * -planeNormal.z);
+                            //prod3: prod1/prod2
+                            prod3 = prod1/prod2;
+                            //intersect point should be 0 - ray * prod3
+                            pos3D = vec3D(0,0,0) - ray * prod3;
+                        }*/
 
-                    if(m_backBuffer[index].zAxis == 999 || pos3D.z > m_backBuffer[index].zAxis) {
-                        //pixel is part of the triangle!
-                        m_backBuffer[index].c = c;
-                        m_backBuffer[index].r = rFill * lightLevel;
-                        m_backBuffer[index].g = gFill * lightLevel;
-                        m_backBuffer[index].b = bFill * lightLevel;
-                        m_backBuffer[index].zAxis = pos3D.z;
+                        int index = getIndex(y, x);
+
+                        if(m_backBuffer[index].zAxis == 999 || pos3D.z > m_backBuffer[index].zAxis) {
+                            //pixel is part of the triangle!
+                            m_backBuffer[index].c = c;
+                            m_backBuffer[index].r = rFill * lightLevel;
+                            m_backBuffer[index].g = gFill * lightLevel;
+                            m_backBuffer[index].b = bFill * lightLevel;
+                            m_backBuffer[index].zAxis = pos3D.z;
+                        }
                     }
                 }
             }
@@ -724,9 +728,9 @@ namespace TrmGraphics {
 
         //draw borders
         if(drawBorders) {
-            addLine(c, vec2D((int)pos12d.x, (int)pos12d.y), vec2D((int)pos22d.x, (int)pos22d.y), rBorder, gBorder, bBorder);
-            addLine(c, vec2D((int)pos22d.x, (int)pos22d.y), vec2D((int)pos32d.x, (int)pos32d.y), rBorder, gBorder, bBorder);
-            addLine(c, vec2D((int)pos32d.x, (int)pos32d.y), vec2D((int)pos12d.x, (int)pos12d.y), rBorder, gBorder, bBorder);
+            this->addLine(c, pos12d, pos22d, rBorder, gBorder, bBorder);
+            this->addLine(c, pos22d, pos32d, rBorder, gBorder, bBorder);
+            this->addLine(c, pos32d, pos12d, rBorder, gBorder, bBorder);
         }
 
     }
