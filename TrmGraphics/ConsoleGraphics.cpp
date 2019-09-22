@@ -27,6 +27,9 @@
 
 namespace TrmGraphics {
 
+    const unsigned numCharShades = 70;
+    char charShades[numCharShades] = " .'`^,:;I;!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*MW&8%B@$#";
+    //$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'.
     //console pixel struct
     struct cPixel {
         char c;
@@ -580,6 +583,18 @@ namespace TrmGraphics {
         if(lightLevel > 1)
         lightLevel = 1;
 
+        //character shading
+        if(c == 0) {
+
+            lightLevel *= numCharShades;
+
+            lightLevel = std::round(lightLevel);
+
+            c = charShades[(int)lightLevel];
+
+            lightLevel = 1;
+        }
+
 
         //apply rotation and position
         translationMatrix mat;
@@ -596,15 +611,15 @@ namespace TrmGraphics {
         pos3 = mat * pos3;
 
         //dont draw if completely off screen
-        double angle1 = getVecAngle(pos1, vec3D(0, 0, -1));
-        double angle2 = getVecAngle(pos2, vec3D(0, 0, -1));
-        double angle3 = getVecAngle(pos3, vec3D(0, 0, -1));
+        double angle1 = getVecAngle(pos1, vec3D(0, 0, 1));
+        double angle2 = getVecAngle(pos2, vec3D(0, 0, 1));
+        double angle3 = getVecAngle(pos3, vec3D(0, 0, 1));
 
         //lightLevel = angle1/100;
         //lightLevel = lightLevel > 0 ? lightLevel : 0;
 
         if(angle1 < 0 || angle2 < 0 || angle3 < 0) {
-            //return;
+            return;
         }
 
         //do perspective projection
@@ -887,7 +902,7 @@ namespace TrmGraphics {
                     winWay = true;
                 #endif
                     if(m_ansiSupported && !winWay) {
-                        printf("\033[%d;%df%c", r+1, c+1, backPix.c);
+                        fprintf(stderr, "\033[%d;%df%c", r+1, c+1, backPix.c);
                     } else {
                     #if defined(PLATFORM_WINDOWS)
                         int nC = c, nR = r;
@@ -897,7 +912,7 @@ namespace TrmGraphics {
                             nR = m_rows;
                         COORD p = {(short)nC, (short)nR};
                         SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
-                        printf("%c", backPix.c);
+                        fprintf(stderr, "%c", backPix.c);
                     #elif defined(PLATFORM_LINUX)
                         //-------------------------------------------------------------------------
                         //TODO: add linux implementation of *non-ansi escape code* Cursor Movement!
@@ -956,7 +971,7 @@ namespace TrmGraphics {
         b = b < 255 ? b : 255;
 
         if(m_ansiSupported) {
-            printf("\033[38;2;%d;%d;%dm", r, g, b);
+            fprintf(stderr, "\033[38;2;%d;%d;%dm", r, g, b);
             return;
         }
 

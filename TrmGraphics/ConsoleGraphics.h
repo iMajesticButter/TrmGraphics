@@ -223,7 +223,7 @@ namespace TrmGraphics {
         /*!
           print a color-able, shade-able triangle with vertecies pos1, pos2, pos3 to the back buffer\n
           note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
-          \param c The character to print the triangle out of.
+          \param c The character to print the triangle out of. If set to 0, shading will use different characters rather than colors (which will render significantly faster)
           \param pos1 The position of vertex 1
           \param pos2 The position of vertex 2
           \param pos3 The position of vertex 3
