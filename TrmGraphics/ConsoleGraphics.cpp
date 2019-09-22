@@ -886,6 +886,55 @@ namespace TrmGraphics {
 
         //check for differences between the front and back buffers
         //when one is found, set the color to its color, then set the cursor to its position and print it!
+    //#if defined(PLATFORM_WINDOWS)
+    #if true
+
+    #if defined(PLATFORM_WINDOWS)
+        COORD p = {(short)0, (short)0};
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+    #else
+        fprintf(stderr, "\033[%d;%df", 0, 0);
+    #endif
+        //double t = clock();
+        //char* screenBuf = new char[(m_columns) * m_rows];
+        std::string screenBuf;
+        //int index = 0;
+        //COORD p = {(short)0, (short)0};
+        unsigned int lastR = 0, lastG = 0, lastB=0;
+        //DWORD written;
+        for(unsigned r = 0; r < (unsigned)m_rows; ++r) {
+            for(unsigned c = 0; c < (unsigned)(m_columns); ++c) {
+                cPixel &backPix = m_backBuffer[getIndex(r, c)];
+                if(backPix.c != 0 && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
+                    lastR = backPix.r;
+                    lastG = backPix.g;
+                    lastB = backPix.b;
+                    //setConsoleColor(backPix.r,backPix.g,backPix.b);
+                    //WriteConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), &screenBuf.front(), screenBuf.size(), p, &written);
+                    //screenBuf.clear();
+                    //p = {(short)c, (short)r};
+                    char buf[32];
+                    //UNREF_PARAM(buf);
+                    sprintf(buf, "\033[38;2;%d;%d;%dm", backPix.r, backPix.g, backPix.b);
+                    screenBuf.append(buf);
+
+
+                }
+                screenBuf.push_back(backPix.c);
+            }
+            //screenBuf[getIndex(r, m_columns-1)] = '\n';
+            screenBuf.push_back('\n');
+        }
+
+        //WriteConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), &screenBuf.front(), screenBuf.size(), p, &written);
+
+        fwrite(&screenBuf.front(), sizeof(char), screenBuf.size(), stderr);
+        //setConsoleColor(255,255,255);
+        //SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+        //std::cout << (clock() - t)/CLOCKS_PER_SEC << std::endl;
+        //system("pause");
+
+    #elif defined(PLATFORM_LINUX)
         unsigned int lastR = 0, lastG = 0, lastB=0;
         for(int r = 0; r < m_rows; ++r) {
             for(int c = 0; c < m_columns; ++c) {
@@ -912,7 +961,9 @@ namespace TrmGraphics {
                             nR = m_rows;
                         COORD p = {(short)nC, (short)nR};
                         SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
-                        fprintf(stderr, "%c", backPix.c);
+                        fwrite(&backPix.c, sizeof(char), 1, stdout);
+                        //DWORD written;
+                        //WriteConsoleOutputCharacter(GetStdHandle(STD_OUTPUT_HANDLE), &backPix.c, 1, p, &written);
                     #elif defined(PLATFORM_LINUX)
                         //-------------------------------------------------------------------------
                         //TODO: add linux implementation of *non-ansi escape code* Cursor Movement!
@@ -923,6 +974,8 @@ namespace TrmGraphics {
                 }
             }
         }
+
+    #endif
 
         //clear backbuffer
         if(override) {

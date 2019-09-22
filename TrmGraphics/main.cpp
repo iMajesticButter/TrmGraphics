@@ -23,10 +23,10 @@ int main() {
     TrmGraphics::ConsoleGraphics console(width, height, false, 6);
 
     //camera position
-    vec3D camPos(0, 0, -80);
+    vec3D camPos(0, 0, -2);
     quaternion camRot(vec3D(0, 0, 0));
     vec3D camEulerAngles = camRot.getEulerAngles();
-    vec3D sunLampAngles = vec3D(0, 1, 0);
+    vec3D sunLampAngles = vec3D(0, 1, -1);
 
     //point for a cube
     /*vec3D v1(0, 0,  2);
