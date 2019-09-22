@@ -14,13 +14,13 @@ using TrmGraphics::quaternion;
 
 int main() {
 
-    const int width = 100;
-    const int height = 50;
-    const bool faces = false;
-    const int edges = 255;
+    const int width = 200;
+    const int height = 100;
+    const bool faces = true;
+    const int edges = -1;
     const float moveSpd = 0.25;
 
-    TrmGraphics::ConsoleGraphics console(width, height, false, 6);
+    TrmGraphics::ConsoleGraphics console(width, height, false, 6, true);
 
     //camera position
     vec3D camPos(0, 0, -2);
@@ -68,10 +68,10 @@ int main() {
 
     TrmGraphics::stlLoader model("./model.stl");
 
-    char c = (char)219;
+    char c = (char)0;
     //char c = '#';
 
-    console.setBackground((char)219, 6, 6, 6);
+    console.setBackground((char)219, 0, 0, 0);
 
     float i = 0;
 

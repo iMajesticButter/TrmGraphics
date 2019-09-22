@@ -4,18 +4,26 @@
 
 #include <string>
 #include <iostream>
-#include <vec2D.h>
-#include <vec3D.h>
+#include <vector>
+
+#include "TrmGraphicsVec2D.h"
+#include "TrmGraphicsVec3D.h"
+#include "TrmGraphicsQuaternion.h"
+#include "TrmGraphicsTranslationMatrix.h"
 
 namespace TrmGraphics {
 
     #define DEFAULT_FONT_SIZE 16
 
-    //typedef class string string;
-
     typedef struct cPixel cPixel;
-    typedef class vec2D vec2D;
-    typedef class vec3D vec3D;
+    typedef class quaternion quaternion;
+
+    struct pointLight {
+        vec3D pos;
+        float intencity;
+        float radius;
+        float falloff;
+    };
 
     //! Graphical Console Manager
     /*!
@@ -35,9 +43,10 @@ namespace TrmGraphics {
           \param rows The desired height of the terminal.
           \param askForFontSize Sould the Console Manager automatically ask the user for the terminals font size. **Only required on windows**. defaults to *false*
           \param fontSize Allows you to input the terminals font size **Only works when askForFontSize is false**. deafults to *16* as that is the deafult font size on the windwos terminal
+          \param renderer3D The 3D renderer is better for 3d objects, however it is slower at 2d objects, only use it if you are drawing 3d objects. default value: *false*
           \sa print(), printAt() and draw()
         */
-        ConsoleGraphics(int columns, int rows, bool askForFontSize = false, int fontSize = DEFAULT_FONT_SIZE);
+        ConsoleGraphics(int columns, int rows, bool askForFontSize = false, int fontSize = DEFAULT_FONT_SIZE, bool renderer3D = false);
 
         //! ConsoleGraphics destructor
         ~ConsoleGraphics();
@@ -175,7 +184,7 @@ namespace TrmGraphics {
         /*!
           print a color-able triangle with vertecies x1,y1 x2,y2 x3,y3 to the back buffer\n
           note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
-          \param c The character to prin the triangle out out of
+          \param c The character to print the triangle out of
           \param pos1 The position of vertex 1
           \param pos2 The position of vertex 2
           \param pos3 The position of vertex 3
@@ -194,7 +203,7 @@ namespace TrmGraphics {
         /*!
           print a color-able triangle with vertecies x1,y1 x2,y2 x3,y3 to the back buffer, this Overload is sutible for non-filled triangles\n
           note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
-          \param c The character to prin the triangle out out of
+          \param c The character to print the triangle out of
           \param pos1 The position of vertex 1
           \param pos2 The position of vertex 2
           \param pos3 The position of vertex 3
@@ -208,6 +217,29 @@ namespace TrmGraphics {
           \sa draw()
         */
         void addTri(char c, vec2D pos1, vec2D pos2, vec2D pos3, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
+
+        //! print a triangle in 3d space to the backbuffer!
+        /*!
+          print a color-able, shade-able triangle with vertecies pos1, pos2, pos3 to the back buffer\n
+          note: This function **only** prints to the back buffer, to actually draw, the draw() function has to be called.
+          \param c The character to print the triangle out of. If set to 0, shading will use different characters rather than colors (which will render significantly faster)
+          \param pos1 The position of vertex 1
+          \param pos2 The position of vertex 2
+          \param pos3 The position of vertex 3
+          \param norm The triangles normal vector (if *(20,20,20)*, one will be generated), default value: *(20,20,20)* (generated)
+          \param camPos The position of the camera
+          \param camRot The rotation of the camera
+          \param rFill the red color value of the triangle fill between 0 and 255. defalts to *255*
+          \param gFill the green color value of the triangle fill between 0 and 255. defalts to *255*
+          \param bFill the blue color value of the triangle fill between 0 and 255. defalts to *255*
+          \param rBorder the red color value of the triangle border between 0 and 255. defalts to *rFill*
+          \param gBorder the green color value of the triangle border between 0 and 255. defalts to *gFill*
+          \param bBorder the blue color value of the triangle border between 0 and 255. defalts to *bFill*
+          \param fill should the triangle be filled. defaults to *true*
+          \param b the distance from the screen to the camera (lower d = higher fov). defaults to *100*
+          \sa draw()
+        */
+        void addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm = vec3D(20, 20, 20), int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true, double d = 100);
 
         //! print an ellipse to the back buffer
         /*!
@@ -243,6 +275,52 @@ namespace TrmGraphics {
         */
         void addEllipse(char c, vec2D pos, vec2D size, bool fill, int rBorder = 255, int gBorder = 255, int bBorder = 255, int rFill = 255, int gFill = 255, int bFill = 255);
 
+        //! set the ambient light level
+        /*!
+          set the ambient light level\n
+          note: this only applies to 3D triangles
+          \param level the new ambient light level
+          \sa setSunLamp(), addPointLight(), addTri3D()
+        */
+        void setAmbientLight(float level);
+
+        //! set the sun lamp direction and brightness
+        /*!
+          set the sun lamp direction and brightness\n
+          note: this only applies to 3D triangles
+          \param dir the direction of the sun lamp
+          \param level the new sun lamp brightness
+          \sa setAmbientLight(), addPointLight(), addTri3D()
+        */
+        void setSunLamp(vec3D dir, float level);
+
+        //! add a new point light
+        /*!
+          add a new point light\n
+          note: this only applies to 3D triangles
+          \param light the point light to be added
+          \sa setSunLamp(), setAmbientLight(), addTri3D(), getPointLight(), removePointLight()
+        */
+        //void addPointLight(pointLight light);
+
+        //! get a point light by index
+        /*!
+          get a point light by index\n
+          note: this only applies to 3D triangles
+          \param index the index to get the point light from
+          \returns a pointer to the point light at index *index*
+          \sa addPointLight(), removePointLight()
+        */
+        //pointLight* getPointLight(unsigned index);
+
+        //! remove a point light by index
+        /*!
+          remove a point light by index\n
+          note: this only applies to 3D triangles
+          \param index the index to remove the point light from
+          \sa addPointLight(), getPointLight()
+        */
+        //void removePointLight(int index);
 
         //! saved the current back buffer as the background
         /*!
@@ -292,6 +370,11 @@ namespace TrmGraphics {
         cPixel* m_backBuffer;
         cPixel* m_frontBuffer;
         cPixel* m_background;
+
+        //std::vector<pointLight> m_lights;
+        float m_ambientLight;
+        vec3D m_sunVec;
+        float m_sunStrength;
 
         int m_rows;
         int m_columns;

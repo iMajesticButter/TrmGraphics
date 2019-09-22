@@ -45,9 +45,10 @@ namespace TrmGraphics {
           \param rows The desired height of the terminal.
           \param askForFontSize Sould the Console Manager automatically ask the user for the terminals font size. **Only required on windows**. defaults to *false*
           \param fontSize Allows you to input the terminals font size **Only works when askForFontSize is false**. deafults to *16* as that is the deafult font size on the windwos terminal
+          \param renderer3D The 3D renderer is better for 3d objects, however it is slower at 2d objects, only use it if you are drawing 3d objects. default value: *false*
           \sa print(), printAt() and draw()
         */
-        ConsoleGraphics(int columns, int rows, bool askForFontSize = false, int fontSize = DEFAULT_FONT_SIZE);
+        ConsoleGraphics(int columns, int rows, bool askForFontSize = false, int fontSize = DEFAULT_FONT_SIZE, bool renderer3D = false);
 
         //! ConsoleGraphics destructor
         ~ConsoleGraphics();
@@ -236,10 +237,11 @@ namespace TrmGraphics {
           \param rBorder the red color value of the triangle border between 0 and 255. defalts to *rFill*
           \param gBorder the green color value of the triangle border between 0 and 255. defalts to *gFill*
           \param bBorder the blue color value of the triangle border between 0 and 255. defalts to *bFill*
-          \param fill should the triangle be filled
+          \param fill should the triangle be filled. defaults to *true*
+          \param b the distance from the screen to the camera (lower d = higher fov). defaults to *100*
           \sa draw()
         */
-        void addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm = vec3D(20, 20, 20), int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true);
+        void addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm = vec3D(20, 20, 20), int rFill = 255, int gFill = 255, int bFill = 255, int rBorder = -1, int gBorder = -1, int bBorder = -1, bool fill = true, double d = 100);
 
         //! print an ellipse to the back buffer
         /*!
@@ -357,6 +359,8 @@ namespace TrmGraphics {
         */
         void draw(bool override = true);
 
+        void* Tri3DThread(void* input);
+
     private:
 
         //functions
@@ -384,6 +388,8 @@ namespace TrmGraphics {
         float m_deltaTime;
 
         double m_lastTime;
+
+        bool m_renderer3D;
 
     };
 

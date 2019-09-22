@@ -27,8 +27,9 @@
 
 namespace TrmGraphics {
 
-    const unsigned numCharShades = 70;
-    char charShades[numCharShades] = " .'`^,:;I;!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*MW&8%B@$#";
+    const unsigned numCharShades = 20;
+    //char charShades[numCharShades] = " .'`^,:;I;!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*MW&8%B@$#";
+    char charShades[numCharShades] = " `'-\042.,:;ox\261%#@\376\262\333";
     //$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'.
     //console pixel struct
     struct cPixel {
@@ -77,7 +78,9 @@ namespace TrmGraphics {
 
     //----------PUBLIC FUNCTIONS----------
     // ConsoleGraphics constructor
-    ConsoleGraphics::ConsoleGraphics(int columns, int rows, bool askForFontSize, int fontSize) {
+    ConsoleGraphics::ConsoleGraphics(int columns, int rows, bool askForFontSize, int fontSize, bool renderer3D) {
+
+        m_renderer3D = renderer3D;
 
         m_deltaTime = 0;
 
@@ -530,20 +533,12 @@ namespace TrmGraphics {
     }
 
     //! print a triangle in 3d space to the backbuffer!
-    void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fillTris) {
-        float d = 100; //distance from camera to projection plane
+    void ConsoleGraphics::addTri3D(char c, vec3D pos1, vec3D pos2, vec3D pos3, vec3D camPos, quaternion camRot, vec3D norm, int rFill, int gFill, int bFill, int rBorder, int gBorder, int bBorder, bool fillTris, double d) {
+        //float d = 100; //distance from camera to projection plane
 
         bool drawBorders = rBorder != -1 || gBorder != -1 || bBorder != -1;
         if(!fillTris)
             drawBorders = true;
-
-        float lightLevel = 0;
-
-
-        //----------------------------lighting-------------------------------
-
-        //--------------sun light--------------
-
 
         //get plane normal and point
         vec3D pv1 = pos2 - pos1;
@@ -559,6 +554,21 @@ namespace TrmGraphics {
         } else {
             planeNormal = norm;
         }
+
+        //backface culling
+        vec3D camDir = pos1 - camPos;
+        double angle = getVecAngle(camDir, planeNormal);
+
+        if(angle > 0) {
+            return;
+        }
+
+        float lightLevel = 0;
+
+
+        //----------------------------lighting-------------------------------
+
+        //--------------sun light--------------
 
 
         //---get angle from normal to light---
@@ -862,6 +872,9 @@ namespace TrmGraphics {
 
     //! will set the background to this char in the color r,g,b
     void ConsoleGraphics::setBackground(char c, int r, int g, int b) {
+        if(r == 0 && g == 0 && b == 0) {
+            c = ' ';
+        }
         addRect(c, vec2D(0, 0), vec2D(m_columns, m_rows), r,g,b,r,g,b);
         saveBackground();
     }
@@ -891,95 +904,97 @@ namespace TrmGraphics {
         //check for differences between the front and back buffers
         //when one is found, set the color to its color, then set the cursor to its position and print it!
     //#if defined(PLATFORM_WINDOWS)
-    #if true
+    if(m_renderer3D) {
 
-    #if defined(PLATFORM_WINDOWS)
-        COORD p = {(short)0, (short)0};
-        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
-    #else
-        fprintf(stderr, "\033[%d;%df", 0, 0);
-    #endif
-        //double t = clock();
-        //char* screenBuf = new char[(m_columns) * m_rows];
-        std::string screenBuf;
-        //int index = 0;
-        //COORD p = {(short)0, (short)0};
-        unsigned int lastR = 0, lastG = 0, lastB=0;
-        //DWORD written;
-        for(unsigned r = 0; r < (unsigned)m_rows; ++r) {
-            for(unsigned c = 0; c < (unsigned)(m_columns); ++c) {
-                cPixel &backPix = m_backBuffer[getIndex(r, c)];
-                if(backPix.c != 0 && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
-                    lastR = backPix.r;
-                    lastG = backPix.g;
-                    lastB = backPix.b;
-                    //setConsoleColor(backPix.r,backPix.g,backPix.b);
-                    //WriteConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), &screenBuf.front(), screenBuf.size(), p, &written);
-                    //screenBuf.clear();
-                    //p = {(short)c, (short)r};
-                    char buf[32];
-                    //UNREF_PARAM(buf);
-                    sprintf(buf, "\033[38;2;%d;%d;%dm", backPix.r, backPix.g, backPix.b);
-                    screenBuf.append(buf);
-
-
-                }
-                screenBuf.push_back(backPix.c);
-            }
-            //screenBuf[getIndex(r, m_columns-1)] = '\n';
-            screenBuf.push_back('\n');
-        }
-
-        //WriteConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), &screenBuf.front(), screenBuf.size(), p, &written);
-
-        fwrite(&screenBuf.front(), sizeof(char), screenBuf.size(), stderr);
-        //setConsoleColor(255,255,255);
-        //SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
-        //std::cout << (clock() - t)/CLOCKS_PER_SEC << std::endl;
-        //system("pause");
-
-    #elif defined(PLATFORM_LINUX)
-        unsigned int lastR = 0, lastG = 0, lastB=0;
-        for(int r = 0; r < m_rows; ++r) {
-            for(int c = 0; c < m_columns; ++c) {
-                cPixel &backPix = m_backBuffer[getIndex(r, c)];
-                if(backPix != m_frontBuffer[getIndex(r, c)]) {
-                    if(backPix.c != 0 && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
+        #if defined(PLATFORM_WINDOWS)
+            COORD p = {(short)0, (short)0};
+            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+        #else
+            fprintf(stdout, "\033[%d;%df", 0, 0);
+        #endif
+            //char* screenBuf = new char[(m_columns) * m_rows];
+            std::string screenBuf;
+            //screenBuf.resize((m_rows) * (m_columns));
+            //int index = 0;
+            //COORD p = {(short)0, (short)0};
+            unsigned int lastR = 0, lastG = 0, lastB = 0;
+            //DWORD written;
+            for(unsigned r = 0; r < (unsigned)m_rows-1; ++r) {
+                for(unsigned c = 0; c < (unsigned)(m_columns); ++c) {
+                    cPixel &backPix = m_backBuffer[getIndex(r, c)];
+                    if(backPix.c != 0 && backPix.c != ' ' && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
                         lastR = backPix.r;
                         lastG = backPix.g;
                         lastB = backPix.b;
-                        setConsoleColor(backPix.r,backPix.g,backPix.b);
+                        //setConsoleColor(backPix.r,backPix.g,backPix.b);
+                        //WriteConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), &screenBuf.front(), screenBuf.size(), p, &written);
+                        //screenBuf.clear();
+                        //p = {(short)c, (short)r};
+                        char buf[32];
+                        //UNREF_PARAM(buf);
+                        sprintf(buf, "\033[38;2;%d;%d;%dm", backPix.r, backPix.g, backPix.b);
+                        screenBuf.append(buf);
+
+
                     }
-                    bool winWay = false;
-                #if defined(PLATFORM_WINDOWS)
-                    winWay = true;
-                #endif
-                    if(m_ansiSupported && !winWay) {
-                        fprintf(stderr, "\033[%d;%df%c", r+1, c+1, backPix.c);
-                    } else {
+                    screenBuf.push_back(backPix.c);
+                }
+                //screenBuf[getIndex(r, m_columns-1)] = '\n';
+                screenBuf.push_back('\n');
+            }
+
+            //WriteConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), &screenBuf.front(), screenBuf.size(), p, &written);
+            //double t = clock();
+            fwrite(&screenBuf.front(), sizeof(char), screenBuf.size(), stdout);
+            //fprintf(stderr, "%s", screenBuf.c_str());
+            //double time = (clock() - t)/CLOCKS_PER_SEC;
+            //setConsoleColor(255,255,255);
+            //SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+            //std::cout << time << std::endl;
+            //system("pause");
+
+        } else {
+            unsigned int lastR = 0, lastG = 0, lastB=0;
+            for(int r = 0; r < m_rows; ++r) {
+                for(int c = 0; c < m_columns; ++c) {
+                    cPixel &backPix = m_backBuffer[getIndex(r, c)];
+                    if(backPix != m_frontBuffer[getIndex(r, c)]) {
+                        if(backPix.c != 0 && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
+                            lastR = backPix.r;
+                            lastG = backPix.g;
+                            lastB = backPix.b;
+                            setConsoleColor(backPix.r,backPix.g,backPix.b);
+                        }
+                        bool winWay = false;
                     #if defined(PLATFORM_WINDOWS)
-                        int nC = c, nR = r;
-                        if(c > m_columns)
-                            nC = m_columns;
-                        if(r > m_rows)
-                            nR = m_rows;
-                        COORD p = {(short)nC, (short)nR};
-                        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
-                        fwrite(&backPix.c, sizeof(char), 1, stdout);
-                        //DWORD written;
-                        //WriteConsoleOutputCharacter(GetStdHandle(STD_OUTPUT_HANDLE), &backPix.c, 1, p, &written);
-                    #elif defined(PLATFORM_LINUX)
-                        //-------------------------------------------------------------------------
-                        //TODO: add linux implementation of *non-ansi escape code* Cursor Movement!
-                        //-------------------------------------------------------------------------
+                        winWay = true;
                     #endif
+                        if(m_ansiSupported && !winWay) {
+                            fprintf(stdout, "\033[%d;%df%c", r+1, c+1, backPix.c);
+                        } else {
+                        #if defined(PLATFORM_WINDOWS)
+                            int nC = c, nR = r;
+                            if(c > m_columns)
+                                nC = m_columns;
+                            if(r > m_rows)
+                                nR = m_rows;
+                            COORD p = {(short)nC, (short)nR};
+                            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+                            //fwrite(&backPix.c, sizeof(char), 1, stdout);
+                            fprintf(stdout, "%c", backPix.c);
+                            //DWORD written;
+                            //WriteConsoleOutputCharacter(GetStdHandle(STD_OUTPUT_HANDLE), &backPix.c, 1, p, &written);
+                        #elif defined(PLATFORM_LINUX)
+                            //-------------------------------------------------------------------------
+                            //TODO: add linux implementation of *non-ansi escape code* Cursor Movement!
+                            //-------------------------------------------------------------------------
+                        #endif
+                        }
+                        m_frontBuffer[getIndex(r, c)] = backPix;
                     }
-                    m_frontBuffer[getIndex(r, c)] = backPix;
                 }
             }
         }
-
-    #endif
 
         //clear backbuffer
         if(override) {

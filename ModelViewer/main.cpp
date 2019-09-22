@@ -159,8 +159,13 @@ int main() {
         std::cout << "Input Desired Sun Light Level: ";
         std::cin >> sunLight;
     }
+
+    double d = 100;
+    std::cout << "Input Desired Distance From Camera To Draw Plane (Larger Number = Lower FOV): ";
+    std::cin >> d;
+
     //initialize the console
-    TrmGraphics::ConsoleGraphics console(width, height, false, fontSize);
+    TrmGraphics::ConsoleGraphics console(width, height, false, fontSize, true);
 
     if(backR != 0 && backG != 0 && backB != 0) {
         console.setBackground((char)219, backR, backG, backB);
@@ -183,7 +188,7 @@ int main() {
         //draw model to backbuffer
         for(unsigned i = 0; i < (unsigned)stl.triCount(); ++i) {
             triangle& t = stl[i];
-            console.addTri3D(c, t.v1, t.v2, t.v3, camPos, camRot, t.normal, red, green, blue, lred, lgreen, lblue, fill);
+            console.addTri3D(c, t.v1, t.v2, t.v3, camPos, camRot, t.normal, red, green, blue, lred, lgreen, lblue, fill, d);
         }
 
         //draw to screen
