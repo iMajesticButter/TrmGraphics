@@ -23,6 +23,7 @@
     #endif
 #elif defined(PLATFORM_LINUX)
     #include <cstring>
+    #include <X11/Xlib.h>
 #endif
 
 #define WHITE_THRESHHOLD 35
@@ -81,6 +82,14 @@ namespace TrmGraphics {
     //----------PUBLIC FUNCTIONS----------
     // ConsoleGraphics constructor
     ConsoleGraphics::ConsoleGraphics(int columns, int rows, bool askForFontSize, int fontSize, bool renderer3D) {
+
+
+    #if defined(PLATFORM_LINUX)
+
+        m_display = (void*)XOpenDisplay(NULL);
+
+    #endif
+
 
         m_renderer3D = renderer3D;
 
@@ -186,6 +195,11 @@ namespace TrmGraphics {
         m_backBuffer = nullptr;
         m_frontBuffer = nullptr;
         m_background = nullptr;
+
+    #if defined(PLATFORM_LINUX)
+        XCloseDisplay((Display*)m_display);
+    #endif
+
     }
 
     //! Get time between last updates
@@ -896,9 +910,16 @@ namespace TrmGraphics {
         return false;
     #elif defined(PLATFORM_LINUX)
 
-        //---------------------------------------------
-        //TODO: add linux implementation of keyPressed!
-        //---------------------------------------------
+        if(m_display == nullptr) {
+            return false;
+        }
+
+        char szKey[32];
+        int keyCode = XKeysymToKeycode((Display*)m_display, k);
+
+        XQueryKeymap((Display*)m_display, szKey);
+
+        return szKey[keyCode/8] & (1 << (keyCode % 8));
 
     #endif
 

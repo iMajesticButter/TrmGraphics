@@ -9,6 +9,8 @@
 #include <windows.h>
 #elif defined(PLATFORM_LINUX)
 #include <linux/input.h>
+#define XK_MISCELLANY
+#include <X11/keysymdef.h>
 #endif
 
 #include "vec2D.h"
@@ -22,11 +24,11 @@ using TrmGraphics::quaternion;
 
 int main() {
 
-    const int width = 200;
-    const int height = 100;
+    const int width = 325;
+    const int height = 125;
     const bool faces = true;
     const int edges = -1;
-    const float moveSpd = 0.25;
+    const float moveSpd = 3;
 
     TrmGraphics::ConsoleGraphics console(width, height, true, 10, true);
 
@@ -77,7 +79,7 @@ int main() {
     TrmGraphics::stlLoader model("./model.stl");
 
     //char c = (char)219;
-    char c = '\u25A0';
+    char c = '@';
     //char c = '#';
 
     console.setBackground((char)219, 0, 0, 0);
@@ -143,7 +145,7 @@ int main() {
         //camRot = quaternion(camRot.getEulerAngles() + vec3D(1, 0, 0) * console.getDeltaTime()*1);
         vec3D rot;
         vec3D mov;
-        if(console.keyPressed(KEY_SPACE)) {
+        if(console.keyPressed(' ')) {
             mov += camRot.up();
             //mov -= vec3D(1, 0, 0);
         }
@@ -169,16 +171,16 @@ int main() {
             //mov += vec3D(0, 0, 1);
             //mov += vec3D(0, -sin(camEulerAngles.x), cos(camEulerAngles.x));
         }
-        if(console.keyPressed(KEY_UP)) {
+        if(console.keyPressed(XK_Up)) {
             rot += vec3D(0, 1, 0);
         }
-        if(console.keyPressed(KEY_DOWN)) {
+        if(console.keyPressed(XK_Down)) {
             rot -= vec3D(0, 1, 0);
         }
-        if(console.keyPressed(KEY_LEFT)) {
+        if(console.keyPressed(XK_Left)) {
             rot -= vec3D(0, 0, 1);
         }
-        if(console.keyPressed(KEY_RIGHT)) {
+        if(console.keyPressed(XK_Right)) {
             rot += vec3D(0, 0, 1);
         }
 
@@ -194,14 +196,14 @@ int main() {
         if(console.keyPressed('L')) {
             sunLampAngles += vec3D(0, -1, 0) * console.getDeltaTime();
         }
-        mov += camRot.up() * console.getDeltaTime() *0.1;
+        //mov += camRot.up() * console.getDeltaTime() *0.1;
         //
 
         //mov *= dir;
 
-        camPos += mov * moveSpd;
+        camPos += mov * console.getDeltaTime() * moveSpd;
 
-        camRot = quaternion(camEulerAngles += rot * 0.1);
+        camRot = quaternion(camEulerAngles += rot * console.getDeltaTime() * 3);
 
         console.printAt("", vec2D(0,0));
         console << "camPos: (";

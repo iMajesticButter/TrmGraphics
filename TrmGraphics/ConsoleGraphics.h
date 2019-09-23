@@ -341,7 +341,8 @@ namespace TrmGraphics {
 
         //! returns pressed state of give key
         /*!
-          Input the key in caps
+          Input the key in caps\n
+          note: on windows, inclue <Windows.h> and use VK_KEY codes for special keys, on linux #define XK_MISCELLANY first than #include <X11/keysymdef.h> and use XK_Key in the same way (note, xlib must be installed and linked)
           \param k The key to get state from.
           \returns The pressed state of key *k*
         */
@@ -390,6 +391,8 @@ namespace TrmGraphics {
         double m_lastTime;
 
         bool m_renderer3D;
+
+        void* m_display;
 
     };
 
