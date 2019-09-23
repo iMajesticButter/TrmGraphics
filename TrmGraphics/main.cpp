@@ -2,7 +2,15 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+
+#include "preC.h"
+
+#if defined(PLATFORM_WINDOWS)
 #include <windows.h>
+#elif defined(PLATFORM_LINUX)
+#include <linux/input.h>
+#endif
+
 #include "vec2D.h"
 #include "vec3D.h"
 #include "quaternion.h"
@@ -20,7 +28,7 @@ int main() {
     const int edges = -1;
     const float moveSpd = 0.25;
 
-    TrmGraphics::ConsoleGraphics console(width, height, true, 10, false);
+    TrmGraphics::ConsoleGraphics console(width, height, true, 10, true);
 
     //camera position
     vec3D camPos(0, 0, -2);
@@ -68,7 +76,8 @@ int main() {
 
     TrmGraphics::stlLoader model("./model.stl");
 
-    char c = (char)219;
+    //char c = (char)219;
+    char c = '\u25A0';
     //char c = '#';
 
     console.setBackground((char)219, 0, 0, 0);
@@ -134,7 +143,7 @@ int main() {
         //camRot = quaternion(camRot.getEulerAngles() + vec3D(1, 0, 0) * console.getDeltaTime()*1);
         vec3D rot;
         vec3D mov;
-        if(console.keyPressed(VK_SPACE)) {
+        if(console.keyPressed(KEY_SPACE)) {
             mov += camRot.up();
             //mov -= vec3D(1, 0, 0);
         }
@@ -160,16 +169,16 @@ int main() {
             //mov += vec3D(0, 0, 1);
             //mov += vec3D(0, -sin(camEulerAngles.x), cos(camEulerAngles.x));
         }
-        if(console.keyPressed(VK_UP)) {
+        if(console.keyPressed(KEY_UP)) {
             rot += vec3D(0, 1, 0);
         }
-        if(console.keyPressed(VK_DOWN)) {
+        if(console.keyPressed(KEY_DOWN)) {
             rot -= vec3D(0, 1, 0);
         }
-        if(console.keyPressed(VK_LEFT)) {
+        if(console.keyPressed(KEY_LEFT)) {
             rot -= vec3D(0, 0, 1);
         }
-        if(console.keyPressed(VK_RIGHT)) {
+        if(console.keyPressed(KEY_RIGHT)) {
             rot += vec3D(0, 0, 1);
         }
 
@@ -185,7 +194,7 @@ int main() {
         if(console.keyPressed('L')) {
             sunLampAngles += vec3D(0, -1, 0) * console.getDeltaTime();
         }
-
+        mov += camRot.up() * console.getDeltaTime() *0.1;
         //
 
         //mov *= dir;

@@ -21,6 +21,8 @@
     #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
         #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
     #endif
+#elif defined(PLATFORM_LINUX)
+    #include <cstring>
 #endif
 
 #define WHITE_THRESHHOLD 35
@@ -867,7 +869,11 @@ namespace TrmGraphics {
         for(int i = 0; i < m_rows*m_columns; ++i) {
             m_backBuffer[i].zAxis = 999;
         }
+        #if defined(PLATFORM_WINDOWS)
         memcpy(m_background, m_backBuffer, sizeof(cPixel) * (m_rows * m_columns));
+        #elif defined(PLATFORM_LINUX)
+        std::memcpy(m_background, m_backBuffer, sizeof(cPixel) * (m_rows * m_columns));
+        #endif
     }
 
     //! will set the background to this char in the color r,g,b
@@ -998,7 +1004,11 @@ namespace TrmGraphics {
 
         //clear backbuffer
         if(override) {
+            #if defined(PLATFORM_WINDOWS)
             memcpy(m_backBuffer, m_background, sizeof(cPixel) * (m_rows * m_columns));
+            #elif defined(PLATFORM_LINUX)
+            std::memcpy(m_backBuffer, m_background, sizeof(cPixel) * (m_rows * m_columns));
+            #endif
         }
 
         //get delta time
