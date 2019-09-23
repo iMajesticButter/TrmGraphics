@@ -25,7 +25,7 @@ int main() {
     const int height = 51;
     const int margin = 6;
 
-    TrmGraphics::ConsoleGraphics console(width, height);
+    TrmGraphics::ConsoleGraphics console(width, height, true, 16, false);
 
     BASS_WASAPI_DEVICEINFO info;
     int device;

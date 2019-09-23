@@ -134,7 +134,7 @@ namespace TrmGraphics {
         HWND consoleHWND = GetConsoleWindow();
         RECT r;
         GetWindowRect(consoleHWND, &r);
-        MoveWindow(consoleHWND, r.left, r.top, ((m_columns+5)*(int)((float)fontSize/1.999f)), ((3+m_rows)*fontSize), TRUE);
+        MoveWindow(consoleHWND, r.left, r.top, ((m_columns+8)*(int)((float)fontSize/1.999f)), ((4+m_rows)*fontSize), TRUE);
 
         if(!m_ansiSupported) {
             //hide cursor
@@ -959,7 +959,7 @@ namespace TrmGraphics {
                 for(int c = 0; c < m_columns; ++c) {
                     cPixel &backPix = m_backBuffer[getIndex(r, c)];
                     if(backPix != m_frontBuffer[getIndex(r, c)]) {
-                        if(backPix.c != 0 && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
+                        if(backPix.c != 0 && backPix.c != ' ' && (backPix.r != lastR || backPix.g != lastG || backPix.b != lastB)) {
                             lastR = backPix.r;
                             lastG = backPix.g;
                             lastB = backPix.b;
@@ -980,8 +980,8 @@ namespace TrmGraphics {
                                 nR = m_rows;
                             COORD p = {(short)nC, (short)nR};
                             SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
-                            //fwrite(&backPix.c, sizeof(char), 1, stdout);
-                            fprintf(stdout, "%c", backPix.c);
+                            fwrite(&backPix.c, sizeof(char), 1, stdout);
+                            //fprintf(stdout, "%c", backPix.c);
                             //DWORD written;
                             //WriteConsoleOutputCharacter(GetStdHandle(STD_OUTPUT_HANDLE), &backPix.c, 1, p, &written);
                         #elif defined(PLATFORM_LINUX)
@@ -1043,7 +1043,12 @@ namespace TrmGraphics {
         b = b < 255 ? b : 255;
 
         if(m_ansiSupported) {
-            fprintf(stderr, "\033[38;2;%d;%d;%dm", r, g, b);
+            //fprintf(stderr, "\033[38;2;%d;%d;%dm", r, g, b);
+            std::string str;
+            char buf[32];
+            sprintf(buf, "\033[38;2;%d;%d;%dm", r, g, b);
+            str.append(buf);
+            fwrite(str.c_str(), sizeof(char), str.size(), stdout);
             return;
         }
 

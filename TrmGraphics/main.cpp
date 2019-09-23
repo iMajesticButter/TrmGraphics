@@ -20,7 +20,7 @@ int main() {
     const int edges = -1;
     const float moveSpd = 0.25;
 
-    TrmGraphics::ConsoleGraphics console(width, height, false, 6, true);
+    TrmGraphics::ConsoleGraphics console(width, height, true, 10, false);
 
     //camera position
     vec3D camPos(0, 0, -2);
@@ -68,7 +68,7 @@ int main() {
 
     TrmGraphics::stlLoader model("./model.stl");
 
-    char c = (char)0;
+    char c = (char)219;
     //char c = '#';
 
     console.setBackground((char)219, 0, 0, 0);
