@@ -24,6 +24,8 @@
 #elif defined(PLATFORM_LINUX)
     #include <cstring>
     #include <X11/Xlib.h>
+    #include <termios.h>
+    #include <unistd.h>
 #endif
 
 #define WHITE_THRESHHOLD 35
@@ -87,6 +89,14 @@ namespace TrmGraphics {
     #if defined(PLATFORM_LINUX)
 
         m_display = (void*)XOpenDisplay(NULL);
+
+        struct termios t_old, t_new;
+
+        //disable echo input charecters on linux
+        tcgetattr(STDIN_FILENO, &t_old);
+        t_new = t_old;
+        t_new.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
 
     #endif
 

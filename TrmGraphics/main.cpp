@@ -79,7 +79,7 @@ int main() {
     TrmGraphics::stlLoader model("./model.stl");
 
     //char c = (char)219;
-    char c = '@';
+    char c = -2;
     //char c = '#';
 
     console.setBackground((char)219, 0, 0, 0);
