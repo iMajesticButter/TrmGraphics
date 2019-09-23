@@ -32,9 +32,9 @@
 
 namespace TrmGraphics {
 
-    const unsigned numCharShades = 20;
+    const unsigned numCharShades = 14;
     //char charShades[numCharShades] = " .'`^,:;I;!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*MW&8%B@$#";
-    char charShades[numCharShades] = " `'-\042.,:;ox\261%#@\376\262\333";
+    char charShades[numCharShades] = " `'-.,:;ox%#@";
     //$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'.
     //console pixel struct
     struct cPixel {
@@ -97,6 +97,14 @@ namespace TrmGraphics {
         t_new = t_old;
         t_new.c_lflag &= ~(ICANON | ECHO);
         tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
+
+        //get the terminal window
+        Window focused;
+        int revert_to;
+
+        XGetInputFocus((Display*)m_display, &focused, &revert_to);
+
+        m_window = focused;
 
     #endif
 
@@ -924,12 +932,22 @@ namespace TrmGraphics {
             return false;
         }
 
-        char szKey[32];
-        int keyCode = XKeysymToKeycode((Display*)m_display, k);
+        Window focused;
+        int revert_to;
 
-        XQueryKeymap((Display*)m_display, szKey);
+        XGetInputFocus((Display*)m_display, &focused, &revert_to);
 
-        return szKey[keyCode/8] & (1 << (keyCode % 8));
+        if(focused == m_window) {
+
+            char szKey[32];
+            int keyCode = XKeysymToKeycode((Display*)m_display, k);
+
+            XQueryKeymap((Display*)m_display, szKey);
+
+            return szKey[keyCode/8] & (1 << (keyCode % 8));
+        }
+
+        return false;
 
     #endif
 

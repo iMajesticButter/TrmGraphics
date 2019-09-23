@@ -393,6 +393,7 @@ namespace TrmGraphics {
         bool m_renderer3D;
 
         void* m_display;
+        unsigned m_window;
 
     };
 

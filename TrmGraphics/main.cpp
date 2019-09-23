@@ -24,8 +24,8 @@ using TrmGraphics::quaternion;
 
 int main() {
 
-    const int width = 325;
-    const int height = 125;
+    const int width = 200;
+    const int height = 75;
     const bool faces = true;
     const int edges = -1;
     const float moveSpd = 3;
@@ -79,7 +79,8 @@ int main() {
     TrmGraphics::stlLoader model("./model.stl");
 
     //char c = (char)219;
-    char c = -2;
+    //char c = -2;
+    char c = (char)0;
     //char c = '#';
 
     console.setBackground((char)219, 0, 0, 0);
