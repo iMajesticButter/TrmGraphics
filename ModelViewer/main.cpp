@@ -2,7 +2,25 @@
 #include <TrmGraphicsStlLoader.h>
 #include <iostream>
 #include <string>
-#include <windows.h>
+//#include <windows.h>
+
+#if defined(__linux__)
+    #define XK_MISCELLANY
+    #include <X11/keysymdef.h>
+
+    #define VK_UP XK_Up
+    #define VK_DOWN XK_Down
+    #define VK_LEFT XK_Left
+    #define VK_RIGHT XK_Right
+    #define VK_SPACE ' '
+
+    #include <unistd.h>
+
+    #define Sleep(x) usleep(x*1000)
+
+#else
+    #include <windows.h>
+#endif
 
 using TrmGraphics::vec2D;
 using TrmGraphics::vec3D;
@@ -165,9 +183,9 @@ int main() {
     std::cin >> d;
 
     //initialize the console
-    TrmGraphics::ConsoleGraphics console(width, height, false, fontSize, true);
+    TrmGraphics::ConsoleGraphics console(width, height, false, fontSize, false);
 
-    if(backR != 0 && backG != 0 && backB != 0) {
+    if(backR != 0 || backG != 0 || backB != 0) {
         console.setBackground((char)219, backR, backG, backB);
     }
 

@@ -11,6 +11,15 @@
 #include <linux/input.h>
 #define XK_MISCELLANY
 #include <X11/keysymdef.h>
+
+
+
+    #define VK_UP XK_Up
+    #define VK_DOWN XK_Down
+    #define VK_LEFT XK_Left
+    #define VK_RIGHT XK_Right
+    #define VK_SPACE ' '
+
 #endif
 
 #include "vec2D.h"

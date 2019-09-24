@@ -350,6 +350,9 @@ namespace TrmGraphics {
 
         double m_lastTime;
 
+        void* m_display;
+        unsigned m_window;
+
     };
 
 }

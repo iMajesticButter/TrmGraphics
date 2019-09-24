@@ -198,6 +198,8 @@ namespace TrmGraphics {
         m_frontBuffer = new cPixel[m_rows * m_columns]();
         m_background = new cPixel[m_rows * m_columns]();
 
+        setBackground(' ', 0, 0, 0);
+
         clearConsole();
 
     }
