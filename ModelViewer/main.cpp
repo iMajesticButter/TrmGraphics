@@ -183,7 +183,7 @@ int main() {
     std::cin >> d;
 
     //initialize the console
-    TrmGraphics::ConsoleGraphics console(width, height, false, fontSize, false);
+    TrmGraphics::ConsoleGraphics console(width, height, false, fontSize, true);
 
     if(backR != 0 || backG != 0 || backB != 0) {
         console.setBackground((char)219, backR, backG, backB);
