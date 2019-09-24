@@ -172,16 +172,16 @@ int main() {
             //mov += vec3D(0, 0, 1);
             //mov += vec3D(0, -sin(camEulerAngles.x), cos(camEulerAngles.x));
         }
-        if(console.keyPressed(XK_Up)) {
+        if(console.keyPressed(VK_UP)) {
             rot += vec3D(0, 1, 0);
         }
-        if(console.keyPressed(XK_Down)) {
+        if(console.keyPressed(VK_DOWN)) {
             rot -= vec3D(0, 1, 0);
         }
-        if(console.keyPressed(XK_Left)) {
+        if(console.keyPressed(VK_LEFT)) {
             rot -= vec3D(0, 0, 1);
         }
-        if(console.keyPressed(XK_Right)) {
+        if(console.keyPressed(VK_RIGHT)) {
             rot += vec3D(0, 0, 1);
         }
 
