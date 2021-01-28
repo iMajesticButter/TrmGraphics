@@ -39,6 +39,7 @@ int main() {
             break;
         }
     }
+    system("pause");
     BASS_SetConfig(24, false);
 
     if(!BASS_Init(0, 44100, BASS_DEVICE_DEFAULT, nullptr, nullptr)) {
