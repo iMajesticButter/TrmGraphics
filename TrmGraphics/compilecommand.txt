@@ -1,0 +1,3 @@
+g++ -c .\ConsoleGraphics.cpp .\quaternion.cpp .\stlLoader.cpp .\translationMatrix.cpp .\vec2D.cpp .\vec3D.cpp
+ar rvs ./output/TrmGraphics/lib-win64/libTrmGraphics.a .\ConsoleGraphics.o .\quaternion.o .\stlLoader.o .\translationMatrix.o .\vec2D.o .\vec3D.o
+g++ -shared -o ./output/TrmGraphics/lib-win64/TrmGraphics.dll .\ConsoleGraphics.o .\quaternion.o .\stlLoader.o .\translationMatrix.o .\vec2D.o .\vec3D.o
