@@ -67,7 +67,7 @@ int main() {
     //set background
     console.setBackground((char)178, 1, 0, 15);
 
-    const int modes = 3;
+    const int modes = 6;
     int mode = 0;
     bool pressed = false;
 
@@ -100,83 +100,161 @@ int main() {
         buf[1] = 0;
 
         //display fft
-        if(mode == 0) {
-            for(int x = 0; x < width; ++x) {
-                if(x < margin || x >= width-margin-3) {
-                    console.printAt(buf, vec2D(x, height/2), 0, brightness, brightness);
-                    continue;
-                }
-                float size = pow(fft[x], 0.9)*15;
-                console.printAt(buf, vec2D(x, height/2), size*brightness, 0, 0);
-                for(int y = 0; y < size*((height/2)-2)+1; ++y) {
-                    if(y > height-4)
-                        continue;
-                    float r = ((float)y/(float)height) * brightness;
-                    console.printAt(buf, vec2D(x, (height/2) + (y/2)), r, brightness-r, brightness);
-                    console.printAt(buf, vec2D(x, (height/2) - (y/2)), r, brightness-r, brightness);
-                }
-            }
-        } else if(mode == 1) {
 
-            int c = 254;
-            buf[0] = (char)c;
-            buf[1] = 0;
-
-            //const float radiusInner = height/6;
-            const float radiusInner = 5;
-            //const float scale = ((height/2) - radiusInner)/5;
-            const float scale = 15;
-            for(int i = 0, a = 0; a < 360; ++i, a += 4) {
-
-                //float size = pow(fft[i], 0.9)*5 + (i/90);
-                float size = fft[i] * 25;
-                //if(size < 1) {
-                    //size = 1;
-                //}
-                for(int j = 0; j < (size*scale)+1; ++j) {
-                    float r = ((float)j/(float)(height/2)) * brightness;
-
-                    //get vector
-                    float x = std::sin((float)(a + 180) * 0.0174533);
-                    float y = std::cos((float)(a + 180) * 0.0174533);
-
-                    x *= radiusInner + j;
-                    y *= radiusInner + j;
-
-                    x = (width/2) + x*2;
-                    y = (height/2) + y*1.009;
-
-                    if(y > height || y < 0 || x > width || x < 0) {
+        switch(mode) {
+        case 0:
+            {
+                for(int x = 0; x < width; ++x) {
+                    if(x < margin || x >= width-margin-3) {
+                        console.printAt(buf, vec2D(x, height/2), 0, brightness, brightness);
                         continue;
                     }
+                    float size = pow(fft[x], 0.9)*15;
+                    console.printAt(buf, vec2D(x, height/2), size*brightness, 0, 0);
+                    for(int y = 0; y < size*((height/2)-2)+1; ++y) {
+                        if(y > height-4)
+                            continue;
+                        float r = ((float)y/(float)height) * brightness;
+                        console.printAt(buf, vec2D(x, (height/2) + (y/2)), r, brightness-r, brightness);
+                        console.printAt(buf, vec2D(x, (height/2) - (y/2)), r, brightness-r, brightness);
+                    }
+                }
+            }
+            break;
+        case 1:
+            {
+                int c = 254;
+                buf[0] = (char)c;
+                buf[1] = 0;
 
-                    if(j == 0)
-                        r = brightness/2;
+                //const float radiusInner = height/6;
+                const float radiusInner = 5;
+                //const float scale = ((height/2) - radiusInner)/5;
+                const float scale = 15;
+                for(int i = 0, a = 0; a < 360; ++i, a += 4) {
 
-                    if(r > brightness) {
-                        console.printAt(buf, vec2D(x, y), brightness, 0, brightness - (r - brightness));
-                    } else {
-                        console.printAt(buf, vec2D(x, y), r, brightness-r, brightness);
+                    float xUnit = std::sin((float)(a + 180) * 0.0174533);
+                    float yUnit = std::cos((float)(a + 180) * 0.0174533);
+
+                    //float size = pow(fft[i], 0.9)*5 + (i/90);
+                    float size = (fft[i] * 25) + (1.0f/scale);
+                    //if(size < 1) {
+                        //size = 1;
+                    //}
+                    for(float j = 0; j < (size*scale); j += 0.25) {
+                        float r = ((float)j/(float)(height/2)) * brightness;
+
+                        //get vector
+                        float x = xUnit;
+                        float y = yUnit;
+
+                        x *= radiusInner + j;
+                        y *= radiusInner + j;
+
+                        x = (width/2) + x*2;
+                        y = (height/2) + y*1.009;
+
+                        if(y > height || y < 0 || x > width || x < 0) {
+                            continue;
+                        }
+
+                        if(r > brightness) {
+                            console.printAt(buf, vec2D(x, y), brightness, 0, brightness - (r - brightness));
+                        } else {
+                            console.printAt(buf, vec2D(x, y), r, brightness-r, brightness);
+                        }
+
                     }
 
+                    // draw inner purple circle
+
+                    xUnit *= radiusInner;
+                    yUnit *= radiusInner;
+
+                    xUnit = (width/2) + xUnit*2;
+                    yUnit = (height/2) + yUnit*1.009;
+
+                    float r = brightness/2;
+                    console.printAt(buf, vec2D(xUnit, yUnit), r, brightness-r, brightness);
                 }
-
             }
-        } else if(mode == 2) {
-            for(int x = 0, i = 0; x < width; x += 4, ++i) {
+            break;
+        case 2:
+            {
+                for(int x = 0; x < width; x += 3) {
 
-                //float size = pow(fft[i], 0.9)*5 + (i/90);
-                float size = fft[i]*10;
-                //if(size < 1) {
-                    //size = 1;
-                //}
-                vec2D p1 = vec2D(x-2, height);
-                vec2D p2 = vec2D(x, height-(size*height/2));
-                vec2D p3 = vec2D(x+2, height);
+                    float xfft = fft[x] + fft[x+1] + fft[x+2];
+                    xfft /= 3;
 
-                console.addTri((char)254, p1, p2, p3, 0, brightness, brightness);
+                    float size = pow(xfft, 0.9)*20;
+                    //float size = fft[i]*12;
+                    //if(size < 1) {
+                    //    size = 1;
+                    //}
+                    vec2D p1 = vec2D(x-2, height);
+                    vec2D p2 = vec2D(x, (height)-(size*height/2));
+                    vec2D p3 = vec2D(x+2, height);
 
+                    console.addTri((char)254, p1, p2, p3, 0, brightness, brightness);
+
+                }
             }
+            break;
+        case 3:
+            {
+                for(int y = 0; y < height; ++y) {
+                    float size = pow(fft[height - y], 0.9)*15;
+
+                    for(int x = 0; x < size*((width/4)-2)+1; ++x) {
+                        if(x > width-4)
+                            continue;
+
+                        float r = ((float)x/((float)width/2)) * brightness;
+                        if(r > brightness)
+                            r = brightness;
+                        console.printAt(buf, vec2D(x, height - y), r, brightness-r, brightness);
+                        console.printAt(buf, vec2D(width - x, y), r, brightness-r, brightness);
+                    }
+                }
+            }
+            break;
+        case 4:
+            {
+                for(int x = 0; x < width/2; ++x) {
+                    float y = pow(fft[x], 0.9)*10;
+
+                    y *= height/2;
+
+                    float r = ((float)y/((float)height/2)) * brightness;
+                    if(r > brightness)
+                        r = brightness;
+
+                    y = height - y;
+
+                    console.addRect((char)219, vec2D((x*2), y), vec2D((x*2)+1, y-1), (int)r, (int)(brightness-r), brightness);
+                }
+            }
+            break;
+        case 5:
+            {
+
+                vec2D lastPos = vec2D(0,0);
+
+                for(int x = 0; x < width; ++x) {
+                    float y = pow(fft[x], 0.9)*14;
+
+                    y *= height/2;
+
+                    y = height - y;
+
+                    if(x != 0) {
+                        console.addLine((char)219, lastPos, vec2D(x,y), 0, brightness, brightness);
+                    }
+
+                    lastPos = vec2D(x,y);
+                }
+            }
+            break;
         }
 
         sprintf(buf, "Mode: %d", mode);
